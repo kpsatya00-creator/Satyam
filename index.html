@@ -1,112 +1,111 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D Car Race Game</title>
+<title>Interactive Camera Fun</title>
 <style>
-  body{margin:0; overflow:hidden; background:#111; font-family:'Poppins',sans-serif;}
-  #score{position:absolute;top:20px;left:50%;transform:translateX(-50%);color:#ffdf5a;font-size:24px;font-weight:700;}
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #89f7fe, #66a6ff);
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  h1 {
+    color: white;
+    text-shadow: 2px 2px 8px #333;
+    margin-bottom: 20px;
+  }
+
+  button {
+    padding: 12px 25px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    color: #333;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+
+  button:hover {
+    transform: scale(1.1);
+  }
+
+  #video {
+    margin-top: 20px;
+    width: 300px;
+    height: 225px;
+    border: 3px solid white;
+    border-radius: 15px;
+    display: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .star {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background: radial-gradient(circle, #fffd82, #ff5e5e);
+    clip-path: polygon(
+      50% 0%, 61% 35%, 98% 35%, 
+      68% 57%, 79% 91%, 50% 70%, 
+      21% 91%, 32% 57%, 2% 35%, 
+      39% 35%
+    );
+    animation: float 1s linear forwards;
+    z-index: 2;
+  }
+
+  @keyframes float {
+    0% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: scale(1.5) translateY(-100px) rotate(360deg); }
+  }
 </style>
 </head>
 <body>
-<div id="score">Score: 0</div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
+
+<h1>Tap Anywhere & See Stars!</h1>
+<button onclick="startStream()">Allow Camera & Mic</button>
+<video id="video" autoplay></video>
+
 <script>
-let scene, camera, renderer;
-let car, road, obstacles = [];
-let speed = 0.2;
-let lane = 0;
-let score = 0;
-
-init();
-animate();
-
-function init(){
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-  renderer = new THREE.WebGLRenderer({antialias:true});
-  renderer.setSize(window.innerWidth,window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  // Light
-  const light = new THREE.DirectionalLight(0xffffff,1);
-  light.position.set(0,10,10);
-  scene.add(light);
-
-  // Road
-  const roadGeo = new THREE.BoxGeometry(4,0.1,50);
-  const roadMat = new THREE.MeshStandardMaterial({color:0x222222});
-  road = new THREE.Mesh(roadGeo, roadMat);
-  road.position.z = -25;
-  scene.add(road);
-
-  // Car
-  const carGeo = new THREE.BoxGeometry(1,0.5,2);
-  const carMat = new THREE.MeshStandardMaterial({color:0xffdf5a});
-  car = new THREE.Mesh(carGeo,carMat);
-  car.position.y = 0.25;
-  car.position.z = 0;
-  scene.add(car);
-
-  camera.position.set(0,5,10);
-  camera.lookAt(0,0,0);
-
-  // Window resize
-  window.addEventListener('resize', ()=>{
-    camera.aspect = window.innerWidth/window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth,window.innerHeight);
-  });
-
-  // Controls
-  document.addEventListener('keydown', e=>{
-    if(e.key==='ArrowLeft'){ lane = Math.max(lane-1,-1); }
-    if(e.key==='ArrowRight'){ lane = Math.min(lane+1,1); }
-  });
-}
-
-// Create obstacles
-function addObstacle(){
-  const size = Math.random()*1+0.5;
-  const obstacleGeo = new THREE.BoxGeometry(1,0.5,1);
-  const obstacleMat = new THREE.MeshStandardMaterial({color:0xff4c4c});
-  const obstacle = new THREE.Mesh(obstacleGeo,obstacleMat);
-  obstacle.position.z = -50;
-  obstacle.position.y = 0.25;
-  obstacle.position.x = [-1,0,1][Math.floor(Math.random()*3)];
-  scene.add(obstacle);
-  obstacles.push(obstacle);
-}
-
-// Animate
-function animate(){
-  requestAnimationFrame(animate);
-
-  // Move car to lane
-  car.position.x += (lane*1 - car.position.x)*0.1;
-
-  // Move obstacles
-  obstacles.forEach((ob,index)=>{
-    ob.position.z += speed;
-    // collision
-    if(Math.abs(ob.position.z)<1 && Math.abs(ob.position.x - car.position.x)<0.75){
-      alert("Game Over! Score: "+Math.floor(score));
-      location.reload();
+  // Camera & Microphone Access
+  async function startStream() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const video = document.getElementById('video');
+      video.srcObject = stream;
+      video.style.display = "block";
+      alert("Camera & Microphone access granted!");
+    } catch (err) {
+      alert("Permission denied or device not found.");
+      console.error(err);
     }
-    // remove offscreen
-    if(ob.position.z>10){ scene.remove(ob); obstacles.splice(index,1);}
+  }
+
+  // Star Effect on Tap
+  document.body.addEventListener('click', function(e) {
+    const star = document.createElement('div');
+    star.classList.add('star');
+    star.style.left = e.clientX - 12 + 'px';
+    star.style.top = e.clientY - 12 + 'px';
+    document.body.appendChild(star);
+
+    // Remove star after animation
+    setTimeout(() => {
+      star.remove();
+    }, 1000);
   });
-
-  // Add new obstacles
-  if(Math.random()<0.02){ addObstacle(); }
-
-  // Update score
-  score += speed;
-  document.getElementById('score').innerText = "Score: "+Math.floor(score);
-
-  renderer.render(scene,camera);
-}
 </script>
+
 </body>
 </html>
