@@ -7,38 +7,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 body {
-  margin: 0;
-  height: 100vh;
-  overflow: hidden;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(120deg,#0d1b2a,#1b263b);
-  transition: background 10s linear;
-  position: relative;
-  color: #fff;
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(120deg,#0d1b2a,#1b263b);
+  transition: background 10s linear;
+  position: relative;
+  color: #fff;
 }
 
 /* Wrap */
 .wrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  position: relative;
-  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
 }
 
 /* Card */
 .card{
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.7);
-  text-align: center;
-  max-width: 400px;
-  width: 100%;
-  position: relative;
-  z-index: 2;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
 }
 .card .logo{width:80px;height:80px;border-radius:16px;object-fit:cover;margin-bottom:12px;}
 .card .title{font-size:1.3rem;font-weight:700;color:#ffdf5a;}
@@ -46,158 +46,157 @@ body {
 
 /* Buttons */
 .link-btn{
-  display:flex;align-items:center;gap:10px;
-  justify-content:center;
-  padding:12px 20px;margin:10px 0;border-radius:16px;background: rgba(255,255,255,0.1);
-  cursor:pointer;transition:0.3s;box-shadow:0 6px 18px rgba(0,0,0,0.35);
+  display:flex;align-items:center;gap:10px;
+  justify-content:center;
+  padding:12px 20px;margin:10px 0;border-radius:16px;background: rgba(255,255,255,0.1);
+  cursor:pointer;transition:0.3s;box-shadow:0 6px 18px rgba(0,0,0,0.35);
 }
 .link-btn:hover{background: rgba(255,223,90,0.15);transform:scale(1.05);}
-.link-btn svg{width:28px;height:28px;}
+.link-btn img{width:28px;height:28px;}
 
 /* Bubble styles */
 .bg-bubble{
-  position:absolute;
-  border-radius:50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(255,255,255,0));
-  pointer-events:none;
-  transform: translate3d(0,0,0);
+  position:absolute;
+  border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(255,255,255,0));
+  pointer-events:none;
+  transform: translate3d(0,0,0);
 }
 
 /* Tap bubble effect */
 .bubble{
-  position:absolute;
-  border-radius:50%;
-  pointer-events:none;
-  opacity:1;
-  transform: scale(0);
-  transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+  position:absolute;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:1;
+  transform: scale(0);
+  transition: transform 0.6s ease-out, opacity 0.6s ease-out;
 }
 
 /* Guide */
 .guide{
-  position:absolute;
-  top:30%;
-  left:50%;
-  transform:translateX(-50%);
-  background: rgba(0,0,0,0.6);
-  padding:12px 20px;
-  border-radius:20px;
-  color:#fff;
-  font-weight:600;
-  text-align:center;
-  animation: pulse 1.5s infinite;
-  z-index:5;
+  position:absolute;
+  top:30%;
+  left:50%;
+  transform:translateX(-50%);
+  background: rgba(0,0,0,0.6);
+  padding:12px 20px;
+  border-radius:20px;
+  color:#fff;
+  font-weight:600;
+  text-align:center;
+  animation: pulse 1.5s infinite;
+  z-index:5;
 }
 @keyframes pulse{
-  0%,100%{transform:translateX(-50%) scale(1);}
-  50%{transform:translateX(-50%) scale(1.05);}
+  0%,100%{transform:translateX(-50%) scale(1);}
+  50%{transform:translateX(-50%) scale(1.05);}
 }
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <div class="card">
-    <img src="logo.png" class="logo" onerror="this.style.display='none'">
-    <div class="title">Pratap Trader's</div>
-    <div class="sub">Click on any link & enjoy the magic!</div>
+  <div class="card">
+    <img src="logo.png" class="logo" onerror="this.style.display='none'">
+    <div class="title">Pratap Trader's</div>
+    <div class="sub">Click on any link & enjoy the magic!</div>
 
-    <!-- Buttons with logos -->
-    <div class="link-btn" onclick="window.open('https://wa.me/919876543210','_blank')">
-      <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.472c-.24-.12-1.4-.69-1.62-.77-.22-.09-.38-.12-.55.12-.17.24-.66.77-.81.93-.15.17-.3.19-.54.06-.24-.12-1.01-.37-1.92-1.18-.71-.64-1.19-1.44-1.33-1.68-.14-.24-.015-.37.106-.49.11-.11.24-.3.36-.45.12-.16.16-.27.24-.45.08-.18.04-.34-.02-.46-.06-.12-.55-1.33-.76-1.82-.2-.47-.41-.41-.55-.41-.14 0-.3-.01-.46-.01-.15 0-.4.06-.61.29-.22.23-.85.83-.85 2.02s.87 2.34.99 2.5c.12.16 1.71 2.62 4.14 3.67 2.43 1.04 2.43.7 2.87.65.44-.05 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28z"/></svg>
-      WhatsApp
-    </div>
+        <div class="link-btn" onclick="window.open('https://wa.me/919876543210','_blank')">
+      <img src="WhatsApp.svg.webp" alt="WhatsApp Logo">
+      WhatsApp
+    </div>
 
-    <div class="link-btn" onclick="window.open('https://www.flipkart.com/','_blank')">
-      <svg viewBox="0 0 24 24" fill="#2874F0"><path d="M6 4h3l2 3h3l-4 5 1 1 5-6V4z"/></svg>
-      Flipkart
-    </div>
+    <div class="link-btn" onclick="window.open('https://www.flipkart.com/','_blank')">
+      <img src="flipkart-logo-rounded-flipkart-logo-free-download-flipkart-logo-free-png.webp" alt="Flipkart Logo">
+      Flipkart
+    </div>
 
-    <div class="link-btn" onclick="window.open('https://youtube.com/@pratap.traders','_blank')">
-      <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M10 15l5-3-5-3v6z"/></svg>
-      YouTube
-    </div>
+    <div class="link-btn" onclick="window.open('https://youtube.com/@pratap.traders','_blank')">
+      <img src="youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.webp" alt="YouTube Logo">
+      YouTube
+    </div>
 
-    <div class="link-btn" onclick="window.open('https://instagram.com/pratap.traders','_blank')">
-      <svg viewBox="0 0 24 24" fill="#E1306C"><circle cx="12" cy="12" r="3.2"/><circle cx="17.2" cy="6.8" r="0.8"/></svg>
-      Instagram
-    </div>
+    <div class="link-btn" onclick="window.open('https://instagram.com/pratap.traders','_blank')">
+      <img src="Instagram_icon.png.jpg" alt="Instagram Logo">
+      Instagram
+    </div>
 
-    <div class="link-btn" onclick="window.open('https://www.amazon.in/','_blank')">
-      <svg viewBox="0 0 24 24" fill="#FF9900"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-6h2v6z"/></svg>
-      Amazon
-    </div>
+    <div class="link-btn" onclick="window.open('https://www.amazon.in/','_blank')">
+      <img src="Amazon_icon.png" alt="Amazon Logo">
+      Amazon
+    </div>
 
-    <div class="link-btn" onclick="window.open('https://www.facebook.com/','_blank')">
-      <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M22 12c0-5.522-4.478-10-10-10S2 6.478 2 12c0 4.991 3.657 9.128 8.438 9.879v-6.988h-2.54v-2.891h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562v1.875h2.773l-.443 2.891h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
-      Facebook
-    </div>
-  </div>
+    <div class="link-btn" onclick="window.open('https://www.facebook.com/','_blank')">
+      <img src="facebook-icon-transparent-background-free-png.webp" alt="Facebook Logo">
+      Facebook
+    </div>
+  </div>
 </div>
 
 <script>
 // First-time guide
 if(!localStorage.getItem('visited')){
-  let guide = document.createElement('div');
-  guide.className='guide';
-  guide.innerText='Tap anywhere to see magic!';
-  document.body.appendChild(guide);
-  setTimeout(()=>{guide.remove()},4000);
-  localStorage.setItem('visited','yes');
+  let guide = document.createElement('div');
+  guide.className='guide';
+  guide.innerText='Tap anywhere to see magic!';
+  document.body.appendChild(guide);
+  setTimeout(()=>{guide.remove()},4000);
+  localStorage.setItem('visited','yes');
 }
 
 // Gradient animation
 let gradients=[
-  ['#0d1b2a','#1b263b'],
-  ['#1b263b','#162447'],
-  ['#1f1f2e','#282c34'],
-  ['#131313','#2c3e50']
+  ['#0d1b2a','#1b263b'],
+  ['#1b263b','#162447'],
+  ['#1f1f2e','#282c34'],
+  ['#131313','#2c3e50']
 ];
 let current=0;
 function changeGradient(){
-  current = (current+1)%gradients.length;
-  document.body.style.background = `linear-gradient(120deg, ${gradients[current][0]}, ${gradients[current][1]})`;
+  current = (current+1)%gradients.length;
+  document.body.style.background = `linear-gradient(120deg, ${gradients[current][0]}, ${gradients[current][1]})`;
 }
 setInterval(changeGradient,10000);
 
 // Floating bubbles
 let bubbles=[];
 for(let i=0;i<15;i++){
-  let b=document.createElement('div');
-  b.className='bg-bubble';
-  let size=60+Math.random()*120;
-  b.style.width=b.style.height=size+'px';
-  b.style.left=Math.random()*window.innerWidth+'px';
-  b.style.top=Math.random()*window.innerHeight+'px';
-  b.speed = 0.2+Math.random()*0.6;
-  document.body.appendChild(b);
-  bubbles.push(b);
+  let b=document.createElement('div');
+  b.className='bg-bubble';
+  let size=60+Math.random()*120;
+  b.style.width=b.style.height=size+'px';
+  b.style.left=Math.random()*window.innerWidth+'px';
+  b.style.top=Math.random()*window.innerHeight+'px';
+  b.speed = 0.2+Math.random()*0.6;
+  document.body.appendChild(b);
+  bubbles.push(b);
 }
 
 // Animate bubbles
 function animateBubbles(){
-  bubbles.forEach(b=>{
-    let top = parseFloat(b.style.top);
-    top -= b.speed;
-    if(top + b.offsetHeight <0) top = window.innerHeight;
-    b.style.top = top+'px';
-  });
-  requestAnimationFrame(animateBubbles);
+  bubbles.forEach(b=>{
+    let top = parseFloat(b.style.top);
+    top -= b.speed;
+    if(top + b.offsetHeight <0) top = window.innerHeight;
+    b.style.top = top+'px';
+  });
+  requestAnimationFrame(animateBubbles);
 }
 animateBubbles();
 
 // Tap bubble effect
 document.body.addEventListener('click', e=>{
-  let b=document.createElement('div');
-  b.className='bubble';
-  b.style.left=e.clientX+'px';
-  b.style.top=e.clientY+'px';
-  let size=30+Math.random()*40;
-  b.style.width=b.style.height=size+'px';
-  b.style.background='radial-gradient(circle,#ffdf5a,#ff75a0)';
-  document.body.appendChild(b);
-  setTimeout(()=>{b.style.transform='scale(2)';b.style.opacity=0;},10);
-  setTimeout(()=>b.remove(),600);
+  let b=document.createElement('div');
+  b.className='bubble';
+  b.style.left=e.clientX+'px';
+  b.style.top=e.clientY+'px';
+  let size=30+Math.random()*40;
+  b.style.width=b.style.height=size+'px';
+  b.style.background='radial-gradient(circle,#ffdf5a,#ff75a0)';
+  document.body.appendChild(b);
+  setTimeout(()=>{b.style.transform='scale(2)';b.style.opacity=0;},10);
+  setTimeout(()=>b.remove(),600);
 });
 </script>
 </body>
