@@ -3,96 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fun Game - Pratap Trader's</title>
+<title>3D Car Race Game</title>
 <style>
-  body {
-    margin:0; padding:0; overflow:hidden;
-    background: linear-gradient(120deg,#0a0f2e,#081a2a,#0b0f2e);
-    background-size:400% 400%;
-    animation: gradientBG 20s ease infinite;
-    font-family: 'Poppins', sans-serif;
-    color: #fff;
-  }
-  @keyframes gradientBG{
-    0%{background-position:0% 50%;}
-    50%{background-position:100% 50%;}
-    100%{background-position:0% 50%;}
-  }
-  canvas{display:block;margin:auto;background: rgba(0,0,0,0.3); border-radius: 20px; display:block; margin-top:50px;}
-  .scoreboard{position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:700;}
-  button{position:absolute;top:60px;left:50%;transform:translateX(-50%);padding:10px 20px;font-size:18px;border:none;border-radius:12px;background:#ffdf5a;color:#111;font-weight:700;cursor:pointer;}
+  body{margin:0; overflow:hidden; background:#111; font-family:'Poppins',sans-serif;}
+  #score{position:absolute;top:20px;left:50%;transform:translateX(-50%);color:#ffdf5a;font-size:24px;font-weight:700;}
 </style>
 </head>
 <body>
-<div class="scoreboard" id="score">Score: 0</div>
-<button onclick="resetGame()">Restart</button>
-<canvas id="gameCanvas" width="600" height="400"></canvas>
-
+<div id="score">Score: 0</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
 <script>
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+let scene, camera, renderer;
+let car, road, obstacles = [];
+let speed = 0.2;
+let lane = 0;
 let score = 0;
-const bubbles = [];
 
-function random(min,max){return Math.random()*(max-min)+min;}
+init();
+animate();
 
-// create bubbles
-function createBubble(){
-  const bubble = {
-    x: random(50, canvas.width-50),
-    y: canvas.height + 30,
-    radius: random(20,40),
-    speed: random(1,3),
-    color: `rgba(255,255,255,${Math.random()*0.5+0.3})`
-  };
-  bubbles.push(bubble);
-}
+function init(){
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+  renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(window.innerWidth,window.innerHeight);
+  document.body.appendChild(renderer.domElement);
 
-// draw bubbles
-function drawBubbles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  bubbles.forEach((b,index)=>{
-    b.y -= b.speed;
-    ctx.beginPath();
-    ctx.arc(b.x,b.y,b.radius,0,Math.PI*2);
-    ctx.fillStyle=b.color;
-    ctx.fill();
-    ctx.closePath();
-    if(b.y+b.radius<0){bubbles.splice(index,1);}
+  // Light
+  const light = new THREE.DirectionalLight(0xffffff,1);
+  light.position.set(0,10,10);
+  scene.add(light);
+
+  // Road
+  const roadGeo = new THREE.BoxGeometry(4,0.1,50);
+  const roadMat = new THREE.MeshStandardMaterial({color:0x222222});
+  road = new THREE.Mesh(roadGeo, roadMat);
+  road.position.z = -25;
+  scene.add(road);
+
+  // Car
+  const carGeo = new THREE.BoxGeometry(1,0.5,2);
+  const carMat = new THREE.MeshStandardMaterial({color:0xffdf5a});
+  car = new THREE.Mesh(carGeo,carMat);
+  car.position.y = 0.25;
+  car.position.z = 0;
+  scene.add(car);
+
+  camera.position.set(0,5,10);
+  camera.lookAt(0,0,0);
+
+  // Window resize
+  window.addEventListener('resize', ()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+  });
+
+  // Controls
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft'){ lane = Math.max(lane-1,-1); }
+    if(e.key==='ArrowRight'){ lane = Math.min(lane+1,1); }
   });
 }
 
-// detect click
-canvas.addEventListener('click', function(e){
-  const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
-  bubbles.forEach((b,index)=>{
-    const dx = mx - b.x;
-    const dy = my - b.y;
-    if(Math.sqrt(dx*dx + dy*dy) < b.radius){
-      bubbles.splice(index,1);
-      score++;
-      document.getElementById('score').innerText = "Score: "+score;
+// Create obstacles
+function addObstacle(){
+  const size = Math.random()*1+0.5;
+  const obstacleGeo = new THREE.BoxGeometry(1,0.5,1);
+  const obstacleMat = new THREE.MeshStandardMaterial({color:0xff4c4c});
+  const obstacle = new THREE.Mesh(obstacleGeo,obstacleMat);
+  obstacle.position.z = -50;
+  obstacle.position.y = 0.25;
+  obstacle.position.x = [-1,0,1][Math.floor(Math.random()*3)];
+  scene.add(obstacle);
+  obstacles.push(obstacle);
+}
+
+// Animate
+function animate(){
+  requestAnimationFrame(animate);
+
+  // Move car to lane
+  car.position.x += (lane*1 - car.position.x)*0.1;
+
+  // Move obstacles
+  obstacles.forEach((ob,index)=>{
+    ob.position.z += speed;
+    // collision
+    if(Math.abs(ob.position.z)<1 && Math.abs(ob.position.x - car.position.x)<0.75){
+      alert("Game Over! Score: "+Math.floor(score));
+      location.reload();
     }
+    // remove offscreen
+    if(ob.position.z>10){ scene.remove(ob); obstacles.splice(index,1);}
   });
-});
 
-// game loop
-function gameLoop(){
-  if(Math.random()<0.02){createBubble();}
-  drawBubbles();
-  requestAnimationFrame(gameLoop);
+  // Add new obstacles
+  if(Math.random()<0.02){ addObstacle(); }
+
+  // Update score
+  score += speed;
+  document.getElementById('score').innerText = "Score: "+Math.floor(score);
+
+  renderer.render(scene,camera);
 }
-
-function resetGame(){
-  bubbles.length=0;
-  score=0;
-  document.getElementById('score').innerText = "Score: "+score;
-}
-
-// start game
-gameLoop();
 </script>
 </body>
 </html>
