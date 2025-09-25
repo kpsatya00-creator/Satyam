@@ -6,50 +6,70 @@
 <title>Magical Gradient — Pratap Trader's</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --accent:#ffdf5a;
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(120deg,#ff5f6d,#ffc371);
+  transition: background 10s ease;
+  position: relative;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Poppins',sans-serif;height:100%;overflow:hidden;color:#fff;transition:background 10s linear;}
-.wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;position:relative;padding:20px;z-index:1;}
 
-/* Floating stars */
-.star{position:absolute;width:6px;height:6px;border-radius:50%;background: #fff8; pointer-events:none;animation: float 12s linear infinite;}
-@keyframes float{0%{transform:translateY(0) translateX(0);}50%{transform:translateY(-20px) translateX(10px);}100%{transform:translateY(0) translateX(0);}}
+/* Wrap */
+.wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
+}
 
-/* Transparent 3D Bubbles */
+/* Card */
+.card{
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+.card .logo{width:80px;height:80px;border-radius:16px;object-fit:cover;margin-bottom:12px;}
+.card .title{font-size:1.3rem;font-weight:700;color:#ffdf5a;}
+.card .sub{font-size:0.95rem;color:rgba(255,255,255,0.75);margin-bottom:16px;}
+.link-btn{
+  display:flex;justify-content:center;align-items:center;
+  padding:12px 20px;margin:10px 0;border-radius:16px;background: rgba(255,255,255,0.1);
+  cursor:pointer;transition:0.3s;box-shadow:0 6px 18px rgba(0,0,0,0.35);
+}
+.link-btn:hover{background: rgba(255,223,90,0.15);transform:scale(1.05);}
+
+/* Bubbles */
 .bg-bubble{
   position:absolute;
   border-radius:50%;
   background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), rgba(255,255,255,0));
   pointer-events:none;
-  animation: floatBubble linear infinite;
   box-shadow: inset -5px -5px 20px rgba(255,255,255,0.2), inset 5px 5px 20px rgba(0,0,0,0.1);
   transform: translate3d(0,0,0);
 }
 
-/* Bubble float animation */
-@keyframes floatBubble{
-  0%{transform: translateY(100vh) translateX(0) scale(1);}
-  50%{transform: translateY(50vh) translateX(30px) scale(1.2);}
-  100%{transform: translateY(-100px) translateX(-20px) scale(1);}
+/* Tap bubbles */
+.bubble{
+  position:absolute;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:1;
+  transform: scale(0);
+  transition: transform 0.6s ease-out, opacity 0.6s ease-out;
 }
 
-/* Card style */
-.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:20px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,0.6);text-align:center;max-width:400px;width:100%;position:relative;z-index:2;}
-.card .logo{width:80px;height:80px;border-radius:16px;object-fit:cover;margin-bottom:12px;}
-.card .title{font-size:1.3rem;font-weight:700;color:var(--accent);}
-.card .sub{font-size:0.95rem;color:rgba(255,255,255,0.75);margin-bottom:16px;}
-
-/* Links */
-.link-btn{display:flex;align-items:center;gap:12px;padding:12px 20px;margin:10px 0;border-radius:16px;background: rgba(255,255,255,0.1);cursor:pointer;transition:0.3s;box-shadow:0 6px 18px rgba(0,0,0,0.35);}
-.link-btn:hover{background: rgba(255,223,90,0.15);transform:scale(1.05);}
-.link-btn svg{width:28px;height:28px;}
-
-/* Tap bubble */
-.bubble{position:absolute;border-radius:50%;pointer-events:none;opacity:1;transform:scale(0);transition:transform 0.6s ease-out,opacity 0.6s ease-out;}
-
-/* First-time guide */
+/* Guide for first-time users */
 .guide{
   position:absolute;
   top:30%;
@@ -72,7 +92,7 @@ body{font-family:'Poppins',sans-serif;height:100%;overflow:hidden;color:#fff;tra
 </head>
 <body>
 
-<div class="wrap" id="wrap">
+<div class="wrap">
   <div class="card">
     <img src="logo.png" class="logo" onerror="this.style.display='none'">
     <div class="title">Pratap Trader's</div>
@@ -89,61 +109,17 @@ body{font-family:'Poppins',sans-serif;height:100%;overflow:hidden;color:#fff;tra
 </div>
 
 <script>
-// First-time visitor guide
+// First-time guide
 if(!localStorage.getItem('visited')){
   let guide = document.createElement('div');
   guide.className='guide';
   guide.innerText='Tap anywhere to see magic!';
   document.body.appendChild(guide);
-  setTimeout(()=>{guide.remove()},4000); // show for 4 seconds
+  setTimeout(()=>{guide.remove()},4000);
   localStorage.setItem('visited','yes');
 }
 
-// Floating stars
-for(let i=0;i<50;i++){
-  let s=document.createElement('div');
-  s.className='star';
-  s.style.top=Math.random()*100+'%';
-  s.style.left=Math.random()*100+'%';
-  s.style.width=s.style.height=(2+Math.random()*4)+'px';
-  s.style.animationDuration=(8+Math.random()*6)+'s';
-  document.getElementById('wrap').appendChild(s);
-}
-
-// Transparent 3D Bubbles
-for(let i=0;i<15;i++){
-  let b=document.createElement('div');
-  b.className='bg-bubble';
-  b.style.left=Math.random()*100+'%';
-  let size = 40+Math.random()*80;
-  b.style.width=b.style.height=size+'px';
-  b.style.animationDuration=(20+Math.random()*20)+'s';
-  b.style.zIndex=Math.floor(Math.random()*3);
-  document.getElementById('wrap').appendChild(b);
-}
-
-// Tap bubble effect
-document.body.addEventListener('click', e=>{
-  let b=document.createElement('div');
-  b.className='bubble';
-  b.style.left=e.clientX+'px';
-  b.style.top=e.clientY+'px';
-  b.style.width=b.style.height=(20+Math.random()*25)+'px';
-  b.style.background='radial-gradient(circle,#ffdf5a,#ff75a0)';
-  document.body.appendChild(b);
-  setTimeout(()=>{b.style.transform='scale(2)';b.style.opacity=0;},10);
-  setTimeout(()=>b.remove(),600);
-
-  // Pop background bubbles
-  document.querySelectorAll('.bg-bubble').forEach(bb=>{
-    const rect=bb.getBoundingClientRect();
-    if(e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom){
-      bb.remove();
-    }
-  });
-});
-
-// Smooth gradient background transition
+// Gradient colors
 let gradients=[
   ['#ff5f6d','#ffc371'],
   ['#24c6dc','#514a9d'],
@@ -152,12 +128,37 @@ let gradients=[
   ['#fbc2eb','#a6c1ee']
 ];
 let current=0;
-function smoothGradient(){
+function changeGradient(){
   current = (current+1)%gradients.length;
   document.body.style.background = `linear-gradient(120deg, ${gradients[current][0]}, ${gradients[current][1]})`;
 }
-setInterval(smoothGradient,15000); // slow change
-smoothGradient();
+setInterval(changeGradient,15000);
+changeGradient();
+
+// Add 3D bubbles
+for(let i=0;i<15;i++){
+  let b = document.createElement('div');
+  b.className='bg-bubble';
+  b.style.left=Math.random()*100+'%';
+  let size = 60 + Math.random()*100;
+  b.style.width = b.style.height = size+'px';
+  b.style.animationDuration = (15+Math.random()*15)+'s';
+  b.style.top = Math.random()*100+'%';
+  document.body.appendChild(b);
+}
+
+// Tap bubbles
+document.body.addEventListener('click', e=>{
+  let b=document.createElement('div');
+  b.className='bubble';
+  b.style.left=e.clientX+'px';
+  b.style.top=e.clientY+'px';
+  b.style.width=b.style.height=(30+Math.random()*30)+'px';
+  b.style.background='radial-gradient(circle,#ffdf5a,#ff75a0)';
+  document.body.appendChild(b);
+  setTimeout(()=>{b.style.transform='scale(2)';b.style.opacity=0;},10);
+  setTimeout(()=>b.remove(),600);
+});
 </script>
 </body>
 </html>
