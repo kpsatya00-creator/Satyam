@@ -1,328 +1,152 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Pratap Trader's — Premium Swipe Links</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg1:#081224; --bg2:#081a2a;
-    --glass: rgba(255,255,255,0.06);
-    --glass-2: rgba(255,255,255,0.03);
-    --accent:#ffdf5a;
-    --success:#28d07a;
-    --card-w: 380px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(120deg,var(--bg1),var(--bg2)); color:#fff;-webkit-font-smoothing:antialiased}
-  .wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px; gap:18px; flex-direction:column}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swipe Links</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(-45deg, #1d2b64, #f8cdda, #1e3c72, #2a5298);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      font-family: "Poppins", sans-serif;
+    }
 
-  /* animated subtle background */
-  .page-bg{
-    position:fixed; inset:0; z-index:-2;
-    background: linear-gradient(0deg, rgba(255,255,255,0.01), rgba(0,0,0,0.15));
-  }
-  /* soft moving gradient overlay */
-  .animated {
-    position:fixed; inset:0; z-index:-3; filter:blur(40px); opacity:0.45;
-    background: linear-gradient(45deg, rgba(255,127,80,0.12), rgba(60,80,200,0.12), rgba(160,50,200,0.08));
-    background-size: 400% 400%;
-    animation: bgmove 18s ease infinite;
-  }
-  @keyframes bgmove { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
 
-  /* card container */
-  .card{
-    width:100%; max-width:var(--card-w); border-radius:18px; padding:22px; text-align:center;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border: 1px solid rgba(255,255,255,0.04);
-    box-shadow: 0 10px 40px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
-    backdrop-filter: blur(8px) saturate(120%);
-  }
-  .brand{display:flex; gap:12px; align-items:center; justify-content:center; margin-bottom:12px}
-  .logo{width:64px;height:64px;border-radius:12px;object-fit:cover;border:2px solid rgba(255,255,255,0.06)}
-  .title{font-weight:700;color:var(--accent); font-size:1.1rem}
-  .sub{color:rgba(255,255,255,0.75); font-size:0.92rem; margin-top:6px}
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      width: 330px;
+    }
 
-  /* swipe block (premium) */
-  .swipe-block{width:100%; display:flex; flex-direction:column; gap:14px; margin-top:8px}
-  .swipe {
-    position:relative; width:100%; height:68px; border-radius:999px; overflow:hidden;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border:1px solid rgba(255,255,255,0.04);
-    box-shadow: 0 8px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
-    display:flex; align-items:center; gap:16px; padding:8px;
-  }
+    .swipe-btn {
+      position: relative;
+      width: 100%;
+      height: 65px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
 
-  /* progress fill */
-  .fill {
-    position:absolute; left:0; top:0; bottom:0; width:0%; border-radius:999px;
-    background: linear-gradient(90deg, rgba(255,223,90,0.14), rgba(255,110,90,0.10));
-    transition: width 40ms linear;
-    pointer-events:none;
-    filter: blur(6px) opacity(0.9);
-    mix-blend-mode: screen;
-  }
+    .swipe-track {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      padding-left: 70px;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+      pointer-events: none;
+    }
 
-  .swipe-left {
-    position:relative; z-index:3; display:flex; align-items:center; gap:12px; padding-left:12px; padding-right:10px;
-    width: calc(100% - 92px);
-  }
-  .meta { text-align:left; }
-  .meta .name { font-weight:700; font-size:1rem; color:#fff }
-  .meta .hint { font-size:0.86rem; color:rgba(255,255,255,0.75) }
+    .swipe-handle {
+      position: absolute;
+      top: 50%;
+      left: 5px;
+      transform: translateY(-50%);
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: grab;
+      transition: background 0.3s;
+    }
 
-  /* draggable circle */
-  .handle {
-    position:absolute; right:calc(100% - 68px); z-index:4; top:50%; transform:translateY(-50%);
-    width:56px; height:56px; border-radius:50%; background:linear-gradient(180deg,#ffffff,#ffeaa3);
-    display:flex; align-items:center; justify-content:center; cursor:grab; user-select:none;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.6) inset;
-    transition: transform 160ms cubic-bezier(.2,.9,.3,1), box-shadow 120ms;
-    right:auto; left:6px; /* start on left */
-    border: 1px solid rgba(255,255,255,0.12);
-  }
-  .handle:active{ cursor:grabbing; transform:translateY(-50%) scale(0.995) }
+    .swipe-btn.whatsapp .swipe-handle { color: #25D366; }
+    .swipe-btn.flipkart .swipe-handle { color: #2874F0; }
+    .swipe-btn.youtube .swipe-handle { color: #FF0000; }
+    .swipe-btn.instagram .swipe-handle { 
+      color: #E1306C; 
+      background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+      color: white;
+    }
 
-  .handle .icon {
-    width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
-    font-weight:700; color:#111; font-size:18px;
-  }
-
-  /* completed state */
-  .swipe.success { box-shadow: 0 12px 60px rgba(40,208,122,0.12), inset 0 1px 0 rgba(255,255,255,0.03) }
-  .swipe.success .handle { transform: translateY(-50%) scale(1.02); box-shadow: 0 14px 40px rgba(40,208,122,0.18); }
-  .check {
-    position:absolute; right:18px; z-index:5; top:50%; transform:translateY(-50%); font-size:20px; color:var(--success);
-    opacity:0; transition: opacity 260ms ease;
-  }
-  .swipe.success .check { opacity:1 }
-
-  /* small label (swipe to...) */
-  .label { position:absolute; left:50%; transform:translateX(-50%); z-index:2; color:rgba(255,255,255,0.75); font-weight:600; pointer-events:none; font-size:0.95rem; }
-
-  /* responsive */
-  @media (max-width:420px){
-    :root{--card-w: 340px}
-    .swipe{height:60px}
-    .handle{width:50px;height:50px}
-  }
-</style>
+  </style>
 </head>
 <body>
-  <div class="animated"></div>
-  <div class="page-bg"></div>
+  <div class="container">
+    <!-- WhatsApp -->
+    <div class="swipe-btn whatsapp" data-url="https://wa.me/919876543210">
+      <div class="swipe-track"><i class="fab fa-whatsapp"></i>&nbsp; Chat with WhatsApp</div>
+      <div class="swipe-handle"><i class="fas fa-angle-right"></i></div>
+    </div>
 
-  <div class="wrap">
-    <div class="card" role="region" aria-label="Pratap Trader's swipe links">
-      <div class="brand">
-        <img src="logo.png" alt="logo" class="logo" onerror="this.style.display='none'">
-        <div>
-          <div class="title">Pratap Trader's</div>
-          <div class="sub">Swipe karke hi link khulega — galti se open nahi hoga</div>
-        </div>
-      </div>
+    <!-- Flipkart -->
+    <div class="swipe-btn flipkart" data-url="https://www.flipkart.com/">
+      <div class="swipe-track"><i class="fas fa-shopping-cart"></i>&nbsp; Visit Flipkart</div>
+      <div class="swipe-handle"><i class="fas fa-angle-right"></i></div>
+    </div>
 
-      <div class="swipe-block">
-        <!-- WhatsApp swipe -->
-        <div class="swipe" data-url="https://wa.me/919999999999" id="s-wp">
-          <div class="fill" id="fill-wp"></div>
-          <div class="label">Swipe to open WhatsApp</div>
-          <div class="swipe-left">
-            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#25D366,#1fbf5a);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(37,211,102,0.12);">
-              <!-- WA SVG -->
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.52 3.48A11.96 11.96 0 0012 .5 11.96 11.96 0 003.48 3.48 11.94 11.94 0 00.5 12c0 2.1.55 4.1 1.6 5.86L.5 23.5l5.8-1.56A11.94 11.94 0 0012 23.5h.01c2.12 0 4.12-.55 5.88-1.6A11.96 11.96 0 0023.5 12a11.96 11.96 0 00-1-5.52z" fill="#fff" opacity="0.08"/><path d="M17.38 14.48c-.24-.12-1.4-.69-1.62-.77-.22-.09-.38-.12-.55.12-.17.24-.66.77-.81.93-.15.17-.3.19-.54.06-.24-.12-1.01-.37-1.92-1.18-.71-.64-1.19-1.44-1.33-1.68-.14-.24-.015-.37.106-.49.11-.11.24-.3.36-.45.12-.16.16-.27.24-.45.08-.18.04-.34-.02-.46-.06-.12-.55-1.33-.76-1.82-.2-.47-.41-.41-.55-.41-.14 0-.3-.01-.46-.01-.15 0-.4.06-.61.29-.22.23-.85.83-.85 2.02s.87 2.34.99 2.5c.12.16 1.71 2.62 4.14 3.67 2.43 1.04 2.43.7 2.87.65.44-.05 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28z" fill="#fff"/></svg>
-            </div>
-            <div class="meta">
-              <div class="name">WhatsApp</div>
-              <div class="hint">Chat with us</div>
-            </div>
-          </div>
-          <div class="handle" role="button" aria-label="Swipe WhatsApp" tabindex="0" id="h-wp">
-            <div class="icon">➤</div>
-          </div>
-          <div class="check">✔</div>
-        </div>
+    <!-- YouTube -->
+    <div class="swipe-btn youtube" data-url="https://www.youtube.com/">
+      <div class="swipe-track"><i class="fab fa-youtube"></i>&nbsp; Subscribe YouTube</div>
+      <div class="swipe-handle"><i class="fas fa-angle-right"></i></div>
+    </div>
 
-        <!-- Flipkart swipe -->
-        <div class="swipe" data-url="https://www.flipkart.com/store-link" id="s-fk">
-          <div class="fill" id="fill-fk"></div>
-          <div class="label">Swipe to open Flipkart</div>
-          <div class="swipe-left">
-            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#2874F0,#0b6ef0);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(40,116,240,0.12);">
-              <!-- FK icon (F) -->
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4h3l2 3h3l-4 5 1 1 5-6V4z" fill="#fff" opacity="0.12"/><path d="M7.2 7.4l-.92-1.35 1.6-.02 1.5 2.23z" fill="#fff"/></svg>
-            </div>
-            <div class="meta">
-              <div class="name">Flipkart</div>
-              <div class="hint">Visit our store</div>
-            </div>
-          </div>
-          <div class="handle" role="button" aria-label="Swipe Flipkart" tabindex="0" id="h-fk">
-            <div class="icon">➤</div>
-          </div>
-          <div class="check">✔</div>
-        </div>
-
-        <!-- YouTube swipe -->
-        <div class="swipe" data-url="https://youtube.com/@pratap.traders" id="s-yt">
-          <div class="fill" id="fill-yt"></div>
-          <div class="label">Swipe to open YouTube</div>
-          <div class="swipe-left">
-            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#FF0000,#e53935);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(255,0,0,0.12);">
-              <!-- YT icon -->
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 15l5-3-5-3v6z" fill="#fff" opacity="0.96"/><rect x="3" y="6" width="18" height="12" rx="3" fill="#fff" opacity="0.06"/></svg>
-            </div>
-            <div class="meta">
-              <div class="name">YouTube</div>
-              <div class="hint">Subscribe to channel</div>
-            </div>
-          </div>
-          <div class="handle" role="button" aria-label="Swipe YouTube" tabindex="0" id="h-yt">
-            <div class="icon">➤</div>
-          </div>
-          <div class="check">✔</div>
-        </div>
-
-        <!-- Instagram swipe -->
-        <div class="swipe" data-url="https://instagram.com/pratap.traders" id="s-ig">
-          <div class="fill" id="fill-ig"></div>
-          <div class="label">Swipe to open Instagram</div>
-          <div class="swipe-left">
-            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#f09433,#bc1888);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(188,24,136,0.12);">
-              <!-- IG icon -->
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#fff" opacity="0.08"/><circle cx="12" cy="12" r="3.2" fill="#fff"/><circle cx="17.2" cy="6.8" r="0.8" fill="#fff" opacity="0.9"/></svg>
-            </div>
-            <div class="meta">
-              <div class="name">Instagram</div>
-              <div class="hint">Follow us</div>
-            </div>
-          </div>
-          <div class="handle" role="button" aria-label="Swipe Instagram" tabindex="0" id="h-ig">
-            <div class="icon">➤</div>
-          </div>
-          <div class="check">✔</div>
-        </div>
-
-      </div>
+    <!-- Instagram -->
+    <div class="swipe-btn instagram" data-url="https://www.instagram.com/">
+      <div class="swipe-track"><i class="fab fa-instagram"></i>&nbsp; Follow Instagram</div>
+      <div class="swipe-handle"><i class="fas fa-angle-right"></i></div>
     </div>
   </div>
 
-<script>
-/* Generic swipe handler factory for a single .swipe element */
-function makeSwipe(elem){
-  const handle = elem.querySelector('.handle');
-  const fill = elem.querySelector('.fill');
-  const check = elem.querySelector('.check');
-  const label = elem.querySelector('.label');
-  const url = elem.dataset.url;
-  let dragging = false;
-  let startX = 0, curX = 0;
-  const pad = 6; // left padding
-  const handleW = handle.offsetWidth;
-  const maxX = elem.clientWidth - handleW - pad;
-  const successThreshold = maxX - 12; // px where we trigger success
+  <script>
+    document.querySelectorAll(".swipe-btn").forEach(btn => {
+      const handle = btn.querySelector(".swipe-handle");
+      const url = btn.dataset.url;
+      let isDown = false;
+      let startX, currentX;
 
-  // ensure fill width uses percent to be smooth
-  function setPos(px){
-    if (px < pad) px = pad;
-    if (px > maxX) px = maxX;
-    const pct = ((px - pad) / (maxX - pad)) * 100;
-    handle.style.left = px + 'px';
-    fill.style.width = (pct) + '%';
-  }
+      handle.addEventListener("mousedown", e => {
+        isDown = true;
+        startX = e.clientX;
+        handle.style.transition = "none";
+      });
 
-  function reset(){
-    handle.style.transition = 'left 300ms cubic-bezier(.2,.9,.25,1)';
-    fill.style.transition = 'width 300ms cubic-bezier(.2,.9,.25,1)';
-    setPos(pad);
-    setTimeout(()=>{ handle.style.transition = ''; fill.style.transition = ''; elem.classList.remove('success'); check.style.opacity = 0; }, 320);
-  }
+      document.addEventListener("mousemove", e => {
+        if (!isDown) return;
+        currentX = e.clientX - startX;
+        if (currentX > 0 && currentX < btn.offsetWidth - handle.offsetWidth - 10) {
+          handle.style.left = currentX + 5 + "px";
+        }
+      });
 
-  // pointer down (mouse/touch)
-  function down(clientX){
-    dragging = true;
-    startX = clientX - (parseInt(handle.style.left || pad) || pad);
-    handle.style.transition = '';
-    fill.style.transition = '';
-  }
-  function move(clientX){
-    if (!dragging) return;
-    curX = clientX - startX;
-    if (curX < pad) curX = pad;
-    if (curX > maxX) curX = maxX;
-    setPos(curX);
-  }
-  function up(){
-    if (!dragging) return;
-    dragging = false;
-    if (curX >= successThreshold){
-      // success
-      elem.classList.add('success');
-      check.style.opacity = 1;
-      handle.style.left = maxX + 'px';
-      fill.style.width = '100%';
-      // small success animation then open
-      setTimeout(()=>{
-        try{ window.open(url, '_blank', 'noopener'); }catch(e){}
-      }, 220);
-      // reset after a delay
-      setTimeout(reset, 1400);
-    } else {
-      reset();
-    }
-  }
+      document.addEventListener("mouseup", () => {
+        if (!isDown) return;
+        isDown = false;
+        handle.style.transition = "all 0.3s ease";
 
-  // mouse events
-  handle.addEventListener('mousedown', (e)=> { e.preventDefault(); down(e.clientX); });
-  window.addEventListener('mousemove', (e)=> move(e.clientX));
-  window.addEventListener('mouseup', up);
-
-  // touch events
-  handle.addEventListener('touchstart', (e)=> { down(e.touches[0].clientX); }, {passive:true});
-  window.addEventListener('touchmove', (e)=> { move(e.touches[0].clientX); }, {passive:true});
-  window.addEventListener('touchend', up);
-
-  // keyboard support: Left/Right to nudge, Enter to complete
-  handle.addEventListener('keydown', (e)=>{
-    const curLeft = parseInt(handle.style.left || pad) || pad;
-    if (e.key === 'ArrowRight') {
-      const nx = Math.min(maxX, curLeft + 20);
-      setPos(nx);
-    } else if (e.key === 'ArrowLeft') {
-      const nx = Math.max(pad, curLeft - 20);
-      setPos(nx);
-    } else if (e.key === 'Enter') {
-      // if near end, trigger success
-      if (curLeft >= successThreshold - 10) {
-        curX = maxX;
-        up();
-      }
-    }
-  });
-
-  // init position
-  handle.style.left = pad + 'px';
-  fill.style.width = '0%';
-  check.style.opacity = 0;
-
-  // recompute sizes on resize
-  window.addEventListener('resize', ()=> {
-    const newMax = elem.clientWidth - handle.offsetWidth - pad;
-    // if sizes changed, set to pad to avoid glitches
-    handle.style.left = pad + 'px';
-    fill.style.width = '0%';
-  });
-}
-
-/* attach to all swipe blocks */
-document.querySelectorAll('.swipe').forEach(makeSwipe);
-
-/* Optional: set your real links here by JS if you want to keep HTML clean.
-   Example:
-   document.getElementById('s-wp').dataset.url = 'https://wa.me/91XXXXXXXXXX';
-*/
-</script>
+        if (parseInt(handle.style.left) > btn.offsetWidth - handle.offsetWidth - 20) {
+          window.open(url, "_blank");
+          handle.style.left = "5px";
+        } else {
+          handle.style.left = "5px";
+        }
+      });
+    });
+  </script>
 </body>
 </html>
