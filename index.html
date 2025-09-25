@@ -1,339 +1,140 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Pratap Trader's — Links</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --fg:#ffffff;
-    --muted: rgba(255,255,255,0.85);
-    --card-bg: rgba(0,0,0,0.36);
-    --glass-border: rgba(255,255,255,0.12);
-    --accent: #28a745;
-    --w: 100vw; --h: 100vh;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:'Poppins',sans-serif;background:#000;color:var(--fg);-webkit-font-smoothing:antialiased}
-  /* full animated gradient background */
-  .bg {
-    position:fixed; inset:0; z-index:-2; overflow:hidden;
-    background:linear-gradient(120deg, #0f172a, #001122, #220022);
-    transition: background 1.2s linear;
-  }
-  /* subtle overlay for better contrast */
-  .bg::after{
-    content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.35));
-    pointer-events:none;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Swipe Links</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      background: linear-gradient(270deg, #ff7e5f, #feb47b, #6a11cb, #2575fc);
+      background-size: 800% 800%;
+      animation: gradientBG 12s ease infinite;
+      font-family: Arial, sans-serif;
+    }
 
-  /* center layout */
-  .wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px}
-  .card{
-    width:100%; max-width:420px; border-radius:18px; padding:22px; text-align:center;
-    background:var(--card-bg);
-    border:1px solid var(--glass-border);
-    backdrop-filter: blur(8px) saturate(120%);
-    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-  }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
 
-  .brand{
-    display:flex; gap:14px; align-items:center; justify-content:center; margin-bottom:12px;
-  }
-  .logo{width:72px; height:72px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.9)}
-  .title{font-size:1.25rem; font-weight:700; color: #ffdf5a; text-shadow:0 6px 20px rgba(0,0,0,0.5)}
-  .subtitle{color:var(--muted); font-size:0.92rem; margin-top:6px}
+    .swipe-container {
+      position: relative;
+      width: 320px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      overflow: hidden;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
 
-  /* carousel container */
-  .carousel {
-    position:relative; margin-top:16px; display:flex; align-items:center; gap:12px;
-  }
-  .arrow {
-    width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center;
-    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.06); cursor:pointer;
-    user-select:none; flex:0 0 44px;
-  }
-  .arrow:active{transform:translateY(1px)}
-  .slides { flex:1; overflow:hidden; position:relative; height:130px; }
-  .track {
-    display:flex; transition: transform 360ms cubic-bezier(.22,.9,.1,1);
-    will-change: transform;
-    touch-action: pan-y;
-    height:100%;
-    align-items:center;
-  }
+    .swipe-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      pointer-events: none;
+    }
 
-  .slide {
-    flex:0 0 100%; padding:12px; display:flex; align-items:center; justify-content:center; gap:12px;
-  }
+    .swipe-btn {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 52px;
+      height: 52px;
+      background: #00ff88;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: grab;
+      user-select: none;
+      transition: background 0.3s;
+      font-size: 24px;
+      font-weight: bold;
+    }
 
-  /* big service card inside slide */
-  .service {
-    width:100%; max-width:300px; border-radius:14px; padding:16px; cursor:pointer;
-    background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
-    border:1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-    display:flex; flex-direction:column; gap:8px; align-items:center;
-    user-select:none;
-  }
-  .service .icon {
-    width:64px; height:64px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-    font-size:28px; font-weight:700; color:#fff;
-    background:linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-  }
-  .service h3{margin:0; font-size:1.05rem}
-  .service p{margin:0;color:var(--muted);font-size:0.9rem}
-
-  /* controls */
-  .controls{display:flex; gap:10px; margin-top:14px; justify-content:center; align-items:center}
-  .open-btn{
-    background:linear-gradient(180deg,var(--accent), #0b6f38);
-    color:#fff; border:none; padding:10px 18px; border-radius:12px; font-weight:700; cursor:pointer;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.4);
-  }
-  .open-btn:active{transform:translateY(1px)}
-  .info{font-size:0.85rem;color:rgba(255,255,255,0.78)}
-
-  /* small helpers */
-  .dots{display:flex; gap:8px; margin-top:12px; justify-content:center}
-  .dot{width:8px;height:8px;border-radius:50%; background:rgba(255,255,255,0.12)}
-  .dot.active{background:#fff}
-
-  /* responsive */
-  @media (max-width:420px){
-    .card{padding:16px}
-    .slides{height:120px}
-  }
-</style>
+    .swipe-btn:active {
+      cursor: grabbing;
+      background: #00cc66;
+    }
+  </style>
 </head>
 <body>
 
-<div class="bg" id="bg"></div>
-
-<div class="wrap">
-  <div class="card" role="region" aria-label="Pratap Trader's links">
-    <div class="brand">
-      <img src="logo.png" alt="logo" class="logo" onerror="this.style.display='none'">
-      <div>
-        <div class="title">Pratap Trader's</div>
-        <div class="subtitle">Premium Fashion — slide to choose, open when ready</div>
-      </div>
-    </div>
-
-    <div class="carousel" aria-hidden="false">
-      <div class="arrow" id="prev" title="Previous" aria-label="Previous">
-        &#9664;
-      </div>
-
-      <div class="slides" id="slides">
-        <div class="track" id="track" tabindex="0">
-          <!-- Slide: WhatsApp -->
-          <div class="slide" data-key="whatsapp" data-link="https://wa.me/your-number">
-            <div class="service" data-name="WhatsApp" data-color="#25D366">
-              <div class="icon" aria-hidden="true">WA</div>
-              <h3>WhatsApp</h3>
-              <p>Chat with us on WhatsApp</p>
-            </div>
-          </div>
-
-          <!-- Slide: Flipkart -->
-          <div class="slide" data-key="flipkart" data-link="https://flipkart.com/store-link">
-            <div class="service" data-name="Flipkart" data-color="#2874F0">
-              <div class="icon" aria-hidden="true">FK</div>
-              <h3>Flipkart Store</h3>
-              <p>Visit our Flipkart store</p>
-            </div>
-          </div>
-
-          <!-- Slide: YouTube -->
-          <div class="slide" data-key="youtube" data-link="https://youtube.com/@pratap.traders">
-            <div class="service" data-name="YouTube" data-color="#FF0000">
-              <div class="icon" aria-hidden="true">YT</div>
-              <h3>YouTube</h3>
-              <p>Subscribe to our channel</p>
-            </div>
-          </div>
-
-          <!-- Slide: Instagram -->
-          <div class="slide" data-key="instagram" data-link="https://instagram.com/pratap.traders">
-            <div class="service" data-name="Instagram" data-color="#C13584">
-              <div class="icon" aria-hidden="true">IG</div>
-              <h3>Instagram</h3>
-              <p>Follow us on Instagram</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="arrow" id="next" title="Next" aria-label="Next">
-        &#9654;
-      </div>
-    </div>
-
-    <div class="controls">
-      <div class="info" id="selectedLabel">Selected: <strong id="selName">WhatsApp</strong></div>
-      <button class="open-btn" id="openBtn" aria-label="Open selected link">Open Link</button>
-    </div>
-
-    <div class="dots" id="dots" aria-hidden="true">
-      <div class="dot active"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
-
-    <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:8px">Tip: Swipe or use arrows to change. Tap card selects only — press <strong>Open Link</strong> to visit.</div>
+  <!-- WhatsApp -->
+  <div class="swipe-container" data-url="https://wa.me/919999999999">
+    <div class="swipe-track">Swipe to open WhatsApp</div>
+    <div class="swipe-btn">➤</div>
   </div>
-</div>
 
-<script>
-/* ---------- Animated gradient background (smooth hue shift) ---------- */
-(function(){
-  const bg = document.getElementById('bg');
-  let hue = Math.random()*360;
-  let step = 0.25 + Math.random()*0.6; // speed
-  function tick(){
-    hue = (hue + step) % 360;
-    // create a multi-stop gradient using HSL
-    const h1 = hue;
-    const h2 = (hue + 45) % 360;
-    const h3 = (hue + 90) % 360;
-    const h4 = (hue + 200) % 360;
-    bg.style.background = `linear-gradient(120deg, hsl(${h1} 60% 12%), hsl(${h2} 60% 15%), hsl(${h3} 60% 18%), hsl(${h4} 60% 10%))`;
-    requestAnimationFrame(tick);
-  }
-  tick();
-})();
+  <!-- Flipkart -->
+  <div class="swipe-container" data-url="https://www.flipkart.com">
+    <div class="swipe-track">Swipe to open Flipkart</div>
+    <div class="swipe-btn">➤</div>
+  </div>
 
-/* ---------- Carousel logic: arrows, swipe, keyboard, open button ---------- */
-(function(){
-  const track = document.getElementById('track');
-  const slides = Array.from(track.children);
-  const prevBtn = document.getElementById('prev');
-  const nextBtn = document.getElementById('next');
-  const openBtn = document.getElementById('openBtn');
-  const selName = document.getElementById('selName');
-  const dots = Array.from(document.querySelectorAll('.dot'));
+  <!-- YouTube -->
+  <div class="swipe-container" data-url="https://www.youtube.com">
+    <div class="swipe-track">Swipe to open YouTube</div>
+    <div class="swipe-btn">➤</div>
+  </div>
 
-  let index = 0;
-  const count = slides.length;
+  <!-- Instagram -->
+  <div class="swipe-container" data-url="https://www.instagram.com">
+    <div class="swipe-track">Swipe to open Instagram</div>
+    <div class="swipe-btn">➤</div>
+  </div>
 
-  function update() {
-    const percent = -index * 100;
-    track.style.transform = `translateX(${percent}%)`;
-    // update selected label
-    const cur = slides[index].querySelector('.service');
-    selName.textContent = cur.dataset.name || 'Link';
-    // update dots
-    dots.forEach((d,i)=> d.classList.toggle('active', i===index));
-  }
+  <script>
+    document.querySelectorAll('.swipe-container').forEach(container => {
+      const btn = container.querySelector('.swipe-btn');
+      const url = container.getAttribute("data-url");
+      let isDragging = false;
+      let startX, currentX;
 
-  prevBtn.addEventListener('click', ()=> {
-    index = (index - 1 + count) % count;
-    update();
-  });
-  nextBtn.addEventListener('click', ()=> {
-    index = (index + 1) % count;
-    update();
-  });
+      btn.addEventListener('mousedown', e => {
+        isDragging = true;
+        startX = e.clientX - btn.offsetLeft;
+      });
 
-  // open link only when openBtn clicked
-  openBtn.addEventListener('click', ()=> {
-    const link = slides[index].dataset.link;
-    if (link) {
-      // open in new tab
-      window.open(link, '_blank', 'noopener');
-    }
-  });
+      document.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        e.preventDefault();
+        currentX = e.clientX - startX;
+        if (currentX < 4) currentX = 4;
+        if (currentX > container.offsetWidth - btn.offsetWidth - 4) {
+          currentX = container.offsetWidth - btn.offsetWidth - 4;
+        }
+        btn.style.left = currentX + "px";
+      });
 
-  // clicking on the visible service selects it (does not open)
-  slides.forEach((s, i) => {
-    s.addEventListener('click', (e)=>{
-      index = i;
-      update();
+      document.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        if (currentX >= container.offsetWidth - btn.offsetWidth - 20) {
+          window.open(url, "_blank"); // ✅ swipe complete → open link
+          btn.style.left = "4px";
+        } else {
+          btn.style.left = "4px"; // reset position
+        }
+      });
     });
-  });
-
-  // keyboard: left/right to navigate, Enter to open
-  document.addEventListener('keydown', (e)=>{
-    if (e.key === 'ArrowLeft') { index = (index - 1 + count) % count; update(); }
-    else if (e.key === 'ArrowRight') { index = (index + 1) % count; update(); }
-    else if (e.key === 'Enter') {
-      // Enter acts like pressing Open Link
-      openBtn.click();
-    }
-  });
-
-  // swipe support on track
-  let startX = 0, currentX = 0, dragging = false, startTime = 0;
-  const threshold = 40; // px to consider as swipe
-  track.addEventListener('touchstart', (ev)=> {
-    const t = ev.touches[0];
-    startX = t.clientX; currentX = startX; dragging = true; startTime = Date.now();
-    track.style.transition = 'none';
-  }, {passive:true});
-
-  track.addEventListener('touchmove', (ev)=> {
-    if (!dragging) return;
-    currentX = ev.touches[0].clientX;
-    const dx = currentX - startX;
-    const percent = (-index * track.parentElement.clientWidth + dx) / track.parentElement.clientWidth * 100;
-    track.style.transform = `translateX(${percent}%)`;
-  }, {passive:true});
-
-  track.addEventListener('touchend', (ev)=> {
-    if (!dragging) return;
-    dragging = false;
-    track.style.transition = '';
-    const dx = currentX - startX;
-    const dt = Date.now() - startTime;
-    // fast flick or enough distance
-    if (dx < -threshold || (dx < -10 && dt < 220)) {
-      index = Math.min(count - 1, index + 1);
-    } else if (dx > threshold || (dx > 10 && dt < 220)) {
-      index = Math.max(0, index - 1);
-    } else {
-      // minor move -> snap back to current
-    }
-    update();
-  });
-
-  // desktop drag with mouse (optional)
-  let mouseDown = false;
-  track.addEventListener('mousedown', (e)=>{
-    mouseDown = true; startX = e.clientX; currentX = startX; dragging = true; startTime = Date.now();
-    track.style.transition = 'none';
-    e.preventDefault();
-  });
-  window.addEventListener('mousemove', (e)=>{
-    if (!mouseDown) return;
-    currentX = e.clientX;
-    const dx = currentX - startX;
-    const percent = (-index * track.parentElement.clientWidth + dx) / track.parentElement.clientWidth * 100;
-    track.style.transform = `translateX(${percent}%)`;
-  });
-  window.addEventListener('mouseup', (e)=>{
-    if (!mouseDown) return;
-    mouseDown = false; dragging = false; track.style.transition = '';
-    const dx = currentX - startX;
-    const dt = Date.now() - startTime;
-    if (dx < -threshold || (dx < -10 && dt < 220)) index = Math.min(count - 1, index + 1);
-    else if (dx > threshold || (dx > 10 && dt < 220)) index = Math.max(0, index - 1);
-    update();
-  });
-
-  // initialize
-  update();
-
-  // optional: click dots to navigate
-  dots.forEach((d, i)=> d.addEventListener('click', ()=> { index = i; update(); }));
-
-  // accessibility: announce selection (simple live region optional)
-})();
-
-/* ---------- Small safety: prevent accidental navigation on long-press on mobile by requiring Open Link button ---------- */
-/* No extra code required because slides click only selects. */
-</script>
-
-</
+  </script>
+</body>
+</html>
