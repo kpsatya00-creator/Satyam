@@ -52,7 +52,7 @@ body {
   cursor:pointer;transition:0.3s;box-shadow:0 6px 18px rgba(0,0,0,0.35);
 }
 .link-btn:hover{background: rgba(255,223,90,0.15);transform:scale(1.05);}
-.link-btn img{width:28px;height:28px;}
+.link-btn svg{width:28px;height:28px;}
 
 /* Bubble styles */
 .bg-bubble{
@@ -103,101 +103,18 @@ body {
     <div class="sub">Click on any link & enjoy the magic!</div>
 
         <div class="link-btn" onclick="window.open('https://wa.me/919876543210','_blank')">
-      <img src="WhatsApp.svg.webp" alt="WhatsApp Logo">
+      <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.472c-.24-.12-1.4-.69-1.62-.77-.22-.09-.38-.12-.55.12-.17.24-.66.77-.81.93-.15.17-.3.19-.54.06-.24-.12-1.01-.37-1.92-1.18-.71-.64-1.19-1.44-1.33-1.68-.14-.24-.015-.37.106-.49.11-.11.24-.3.36-.45.12-.16.16-.27.24-.45.08-.18.04-.34-.02-.46-.06-.12-.55-1.33-.76-1.82-.2-.47-.41-.41-.55-.41-.14 0-.3-.01-.46-.01-.15 0-.4.06-.61.29-.22.23-.85.83-.85 2.02s.87 2.34.99 2.5c.12.16 1.71 2.62 4.14 3.67 2.43 1.04 2.43.7 2.87.65.44-.05 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28z"/></svg>
       WhatsApp
     </div>
 
     <div class="link-btn" onclick="window.open('https://www.flipkart.com/','_blank')">
-      <img src="flipkart-logo-rounded-flipkart-logo-free-download-flipkart-logo-free-png.webp" alt="Flipkart Logo">
+      <svg viewBox="0 0 24 24" fill="#2874F0"><path d="M6 4h3l2 3h3l-4 5 1 1 5-6V4z"/></svg>
       Flipkart
     </div>
 
     <div class="link-btn" onclick="window.open('https://youtube.com/@pratap.traders','_blank')">
-      <img src="youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.webp" alt="YouTube Logo">
+      <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M10 15l5-3-5-3v6z"/></svg>
       YouTube
     </div>
 
-    <div class="link-btn" onclick="window.open('https://instagram.com/pratap.traders','_blank')">
-      <img src="Instagram_icon.png.jpg" alt="Instagram Logo">
-      Instagram
-    </div>
-
-    <div class="link-btn" onclick="window.open('https://www.amazon.in/','_blank')">
-      <img src="Amazon_icon.png" alt="Amazon Logo">
-      Amazon
-    </div>
-
-    <div class="link-btn" onclick="window.open('https://www.facebook.com/','_blank')">
-      <img src="facebook-icon-transparent-background-free-png.webp" alt="Facebook Logo">
-      Facebook
-    </div>
-  </div>
-</div>
-
-<script>
-// First-time guide
-if(!localStorage.getItem('visited')){
-  let guide = document.createElement('div');
-  guide.className='guide';
-  guide.innerText='Tap anywhere to see magic!';
-  document.body.appendChild(guide);
-  setTimeout(()=>{guide.remove()},4000);
-  localStorage.setItem('visited','yes');
-}
-
-// Gradient animation
-let gradients=[
-  ['#0d1b2a','#1b263b'],
-  ['#1b263b','#162447'],
-  ['#1f1f2e','#282c34'],
-  ['#131313','#2c3e50']
-];
-let current=0;
-function changeGradient(){
-  current = (current+1)%gradients.length;
-  document.body.style.background = `linear-gradient(120deg, ${gradients[current][0]}, ${gradients[current][1]})`;
-}
-setInterval(changeGradient,10000);
-
-// Floating bubbles
-let bubbles=[];
-for(let i=0;i<15;i++){
-  let b=document.createElement('div');
-  b.className='bg-bubble';
-  let size=60+Math.random()*120;
-  b.style.width=b.style.height=size+'px';
-  b.style.left=Math.random()*window.innerWidth+'px';
-  b.style.top=Math.random()*window.innerHeight+'px';
-  b.speed = 0.2+Math.random()*0.6;
-  document.body.appendChild(b);
-  bubbles.push(b);
-}
-
-// Animate bubbles
-function animateBubbles(){
-  bubbles.forEach(b=>{
-    let top = parseFloat(b.style.top);
-    top -= b.speed;
-    if(top + b.offsetHeight <0) top = window.innerHeight;
-    b.style.top = top+'px';
-  });
-  requestAnimationFrame(animateBubbles);
-}
-animateBubbles();
-
-// Tap bubble effect
-document.body.addEventListener('click', e=>{
-  let b=document.createElement('div');
-  b.className='bubble';
-  b.style.left=e.clientX+'px';
-  b.style.top=e.clientY+'px';
-  let size=30+Math.random()*40;
-  b.style.width=b.style.height=size+'px';
-  b.style.background='radial-gradient(circle,#ffdf5a,#ff75a0)';
-  document.body.appendChild(b);
-  setTimeout(()=>{b.style.transform='scale(2)';b.style.opacity=0;},10);
-  setTimeout(()=>b.remove(),600);
-});
-</script>
-</body>
-</html>
+    <div class="link-btn" onclick="window.open('
