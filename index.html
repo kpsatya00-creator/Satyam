@@ -3,23 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Magical Links — Pratap Trader's</title>
+<title>Magical Gradient — Pratap Trader's</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg1:#071124; --bg2:#081a2a;
   --accent:#ffdf5a;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Poppins',sans-serif;height:100%;background:linear-gradient(120deg,var(--bg1),var(--bg2));overflow:hidden;color:#fff;}
-.wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;position:relative;padding:20px;}
+body{font-family:'Poppins',sans-serif;height:100%;overflow:hidden;color:#fff;transition:background 2s linear;}
+.wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;position:relative;padding:20px;z-index:1;}
 
 /* Floating stars */
 .star{position:absolute;width:6px;height:6px;border-radius:50%;background: #fff8; pointer-events:none;animation: float 12s linear infinite;}
 @keyframes float{0%{transform:translateY(0) translateX(0);}50%{transform:translateY(-20px) translateX(10px);}100%{transform:translateY(0) translateX(0);}}
 
+/* Transparent bubbles background */
+.bg-bubble{position:absolute;width:20px;height:20px;border-radius:50%;background: rgba(255,255,255,0.15);pointer-events:none;animation: floatBubble 15s linear infinite;}
+@keyframes floatBubble{
+  0%{transform:translateY(100vh) translateX(0) scale(1);}
+  50%{transform:translateY(50vh) translateX(20px) scale(1.2);}
+  100%{transform:translateY(-50px) translateX(-10px) scale(1);}
+}
+
 /* Card style */
-.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:20px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,0.6);text-align:center;max-width:400px;width:100%;}
+.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:20px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,0.6);text-align:center;max-width:400px;width:100%;position:relative;z-index:2;}
 .card .logo{width:80px;height:80px;border-radius:16px;object-fit:cover;margin-bottom:12px;}
 .card .title{font-size:1.3rem;font-weight:700;color:var(--accent);}
 .card .sub{font-size:0.95rem;color:rgba(255,255,255,0.75);margin-bottom:16px;}
@@ -29,39 +36,50 @@ body{font-family:'Poppins',sans-serif;height:100%;background:linear-gradient(120
 .link-btn:hover{background: rgba(255,223,90,0.15);transform:scale(1.05);}
 .link-btn svg{width:28px;height:28px;}
 
-/* Tap effect bubble */
+/* Tap bubble */
 .bubble{position:absolute;border-radius:50%;pointer-events:none;opacity:1;transform:scale(0);transition:transform 0.6s ease-out,opacity 0.6s ease-out;}
 </style>
 </head>
 <body>
 
 <div class="wrap" id="wrap">
-  <!-- Floating stars will be added by JS -->
+  <!-- Floating stars and background bubbles will be added by JS -->
 
   <div class="card">
     <img src="logo.png" class="logo" onerror="this.style.display='none'">
     <div class="title">Pratap Trader's</div>
     <div class="sub">Click on any link & enjoy the magic!</div>
 
+    <!-- WhatsApp -->
     <div class="link-btn" onclick="window.open('https://wa.me/919876543210','_blank')">
-      <svg viewBox="0 0 24 24" fill="#25D366"><path d="M20.52 3.48A11.96 11.96 0 0012 .5 11.96 11.96 0 003.48 3.48 11.94 11.94 0 00.5 12c0 2.1.55 4.1 1.6 5.86L.5 23.5l5.8-1.56A11.94 11.94 0 0012 23.5h.01c2.12 0 4.12-.55 5.88-1.6A11.96 11.96 0 0023.5 12a11.96 11.96 0 00-1-5.52z"/></svg>
       WhatsApp
     </div>
 
+    <!-- Flipkart -->
     <div class="link-btn" onclick="window.open('https://www.flipkart.com/','_blank')">
-      <svg viewBox="0 0 24 24" fill="#2874F0"><path d="M6 4h3l2 3h3l-4 5 1 1 5-6V4z"/></svg>
       Flipkart
     </div>
 
+    <!-- YouTube -->
     <div class="link-btn" onclick="window.open('https://youtube.com/@pratap.traders','_blank')">
-      <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M10 15l5-3-5-3v6z"/></svg>
       YouTube
     </div>
 
+    <!-- Instagram -->
     <div class="link-btn" onclick="window.open('https://instagram.com/pratap.traders','_blank')">
-      <svg viewBox="0 0 24 24" fill="#f58529"><circle cx="12" cy="12" r="3.2"/><circle cx="17.2" cy="6.8" r="0.8"/></svg>
       Instagram
     </div>
+
+    <!-- Amazon -->
+    <div class="link-btn" onclick="window.open('https://www.amazon.in/','_blank')">
+      Amazon
+    </div>
+
+    <!-- Facebook -->
+    <div class="link-btn" onclick="window.open('https://www.facebook.com/','_blank')">
+      Facebook
+    </div>
+
   </div>
 </div>
 
@@ -77,19 +95,52 @@ for(let i=0;i<50;i++){
   document.getElementById('wrap').appendChild(s);
 }
 
-// Tap bubble effect
+// Background transparent bubbles
+for(let i=0;i<20;i++){
+  let b=document.createElement('div');
+  b.className='bg-bubble';
+  b.style.left=Math.random()*100+'%';
+  b.style.width=b.style.height=(10+Math.random()*20)+'px';
+  b.style.animationDuration=(10+Math.random()*10)+'s';
+  document.getElementById('wrap').appendChild(b);
+}
+
+// Tap bubble effect (magic burst)
 document.body.addEventListener('click', e=>{
   let b=document.createElement('div');
   b.className='bubble';
   b.style.left=e.clientX+'px';
   b.style.top=e.clientY+'px';
-  b.style.width=b.style.height=(10+Math.random()*10)+'px';
+  b.style.width=b.style.height=(10+Math.random()*15)+'px';
   b.style.background='radial-gradient(circle,#ffdf5a,#ff75a0)';
   document.body.appendChild(b);
   setTimeout(()=>{b.style.transform='scale(2)';b.style.opacity=0;},10);
   setTimeout(()=>b.remove(),600);
+
+  // Check if user clicked a background bubble
+  document.querySelectorAll('.bg-bubble').forEach(bb=>{
+    const rect=bb.getBoundingClientRect();
+    if(e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom){
+      bb.remove(); // bubble pops
+    }
+  });
 });
+
+// Dynamic gradient background
+let colors=[
+  ['#ff5f6d','#ffc371'],
+  ['#24c6dc','#514a9d'],
+  ['#ff9a9e','#fad0c4'],
+  ['#a1c4fd','#c2e9fb'],
+  ['#fbc2eb','#a6c1ee']
+];
+let i=0;
+function changeGradient(){
+  document.body.style.background = `linear-gradient(120deg, ${colors[i][0]}, ${colors[i][1]})`;
+  i = (i+1) % colors.length;
+}
+setInterval(changeGradient,4000);
+changeGradient();
 </script>
 </body>
 </html>
-
