@@ -1,221 +1,95 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Magical Swipe — Pratap Trader's</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magical Links — Pratap Trader's</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg1: #071124;
-  --bg2: #081a2a;
-  --accent: #ffdf5a;
-  --success: #28d07a;
-  --card-w: 420px;
-  --handle-gradient: linear-gradient(180deg,#ffffff,#ffeaa3);
+:root{
+  --bg1:#071124; --bg2:#081a2a;
+  --accent:#ffdf5a;
 }
-
-/* Reset */
-* {box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;font-family:'Poppins',sans-serif;background: linear-gradient(120deg,var(--bg1),var(--bg2)); color:#fff; overflow-x:hidden;}
-.wrap{min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; gap:20px; position:relative;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;height:100%;background:linear-gradient(120deg,var(--bg1),var(--bg2));overflow:hidden;color:#fff;}
+.wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;position:relative;padding:20px;}
 
 /* Floating stars */
-.star{position:absolute; width:6px; height:6px; border-radius:50%; background: #fff8; pointer-events:none; animation: float 12s linear infinite;}
-@keyframes float {0%{transform:translateY(0) translateX(0);}50%{transform:translateY(-20px) translateX(10px);}100%{transform:translateY(0) translateX(0);}}
+.star{position:absolute;width:6px;height:6px;border-radius:50%;background: #fff8; pointer-events:none;animation: float 12s linear infinite;}
+@keyframes float{0%{transform:translateY(0) translateX(0);}50%{transform:translateY(-20px) translateX(10px);}100%{transform:translateY(0) translateX(0);}}
 
-/* Card */
-.card{width:100%; max-width:var(--card-w); border-radius:20px; padding:24px; background: rgba(255,255,255,0.05); backdrop-filter: blur(12px) saturate(120%); box-shadow:0 10px 40px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.1); position:relative;}
+/* Card style */
+.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:20px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,0.6);text-align:center;max-width:400px;width:100%;}
+.card .logo{width:80px;height:80px;border-radius:16px;object-fit:cover;margin-bottom:12px;}
+.card .title{font-size:1.3rem;font-weight:700;color:var(--accent);}
+.card .sub{font-size:0.95rem;color:rgba(255,255,255,0.75);margin-bottom:16px;}
 
-/* Brand header */
-.brand{display:flex; gap:12px; align-items:center; margin-bottom:20px;}
-.logo{width:60px;height:60px;border-radius:14px;object-fit:cover;border:2px solid rgba(255,255,255,0.08);}
-.title{font-weight:700;color:var(--accent); font-size:1.1rem;}
-.sub{color:rgba(255,255,255,0.75); font-size:0.92rem;}
+/* Links */
+.link-btn{display:flex;align-items:center;gap:12px;padding:12px 20px;margin:10px 0;border-radius:16px;background: rgba(255,255,255,0.1);cursor:pointer;transition:0.3s;box-shadow:0 6px 18px rgba(0,0,0,0.35);}
+.link-btn:hover{background: rgba(255,223,90,0.15);transform:scale(1.05);}
+.link-btn svg{width:28px;height:28px;}
 
-/* Swipe */
-.row{margin-top:16px;}
-.swipe{position:relative; width:100%; height:72px; border-radius:999px; overflow:hidden; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; padding:10px 14px; gap:12px; cursor:pointer;}
-.swipe .left{display:flex; align-items:center; gap:12px; z-index:2;}
-.iconBox{width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex:0 0 52px; box-shadow:0 6px 18px rgba(0,0,0,0.35);}
-.meta{line-height:1;}
-.meta .name{font-weight:700;font-size:1rem;}
-.meta .hint{font-size:0.86rem;color:rgba(255,255,255,0.75);}
-
-/* Fill */
-.fill{position:absolute; left:0; top:0; bottom:0; width:0%; border-radius:999px; background: linear-gradient(90deg, rgba(255,223,90,0.12), rgba(255,110,90,0.08)); z-index:1; transition:width 30ms linear; pointer-events:none;}
-
-/* Handle */
-.handle{position:absolute; left:8px; top:50%; transform:translateY(-50%); z-index:3; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--handle-gradient); color:#111; font-weight:700; cursor:grab; user-select:none; box-shadow:0 10px 28px rgba(0,0,0,0.45); touch-action:none; transition: transform 160ms ease;}
-.handle:active{cursor:grabbing; transform:translateY(-50%) scale(0.98);}
-
-/* Check */
-.check{position:absolute; right:18px; top:50%; transform:translateY(-50%); z-index:2; font-size:22px; color:var(--success); opacity:0; transition:opacity 220ms, transform 220ms;}
-.swipe.success .check{opacity:1; transform:translateY(-50%) scale(1.3);}
-
-/* Brand colors */
-.whatsapp .iconBox{background: linear-gradient(135deg,#25D366,#1fbf5a);}
-.flipkart .iconBox{background: linear-gradient(135deg,#2874F0,#0b6ef0);}
-.youtube .iconBox{background: linear-gradient(135deg,#FF0000,#e53935);}
-.instagram .iconBox{background: linear-gradient(135deg,#f58529,#515bd4);}
-
-/* Responsive */
-@media(max-width:420px){
-  .card{padding:16px;}
-  .swipe{height:62px;}
-  .iconBox{width:48px;height:48px;border-radius:10px;}
-  .handle{width:50px;height:50px;}
-}
+/* Tap effect bubble */
+.bubble{position:absolute;border-radius:50%;pointer-events:none;opacity:1;transform:scale(0);transition:transform 0.6s ease-out,opacity 0.6s ease-out;}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <!-- Floating stars -->
-</div>
 
-<div class="wrap">
+<div class="wrap" id="wrap">
+  <!-- Floating stars will be added by JS -->
+
   <div class="card">
-    <div class="brand">
-      <img src="logo.png" alt="logo" class="logo" onerror="this.style.display='none'">
-      <div>
-        <div class="title">Pratap Trader's</div>
-        <div class="sub">Swipe karke link khulega — touch & mouse dono support</div>
-      </div>
+    <img src="logo.png" class="logo" onerror="this.style.display='none'">
+    <div class="title">Pratap Trader's</div>
+    <div class="sub">Click on any link & enjoy the magic!</div>
+
+    <div class="link-btn" onclick="window.open('https://wa.me/919876543210','_blank')">
+      <svg viewBox="0 0 24 24" fill="#25D366"><path d="M20.52 3.48A11.96 11.96 0 0012 .5 11.96 11.96 0 003.48 3.48 11.94 11.94 0 00.5 12c0 2.1.55 4.1 1.6 5.86L.5 23.5l5.8-1.56A11.94 11.94 0 0012 23.5h.01c2.12 0 4.12-.55 5.88-1.6A11.96 11.96 0 0023.5 12a11.96 11.96 0 00-1-5.52z"/></svg>
+      WhatsApp
     </div>
 
-    <!-- WhatsApp -->
-    <div class="row">
-      <div class="swipe whatsapp" data-url="https://wa.me/919876543210">
-        <div class="fill"></div>
-        <div class="left">
-          <div class="iconBox">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M20.52 3.48A11.96 11.96 0 0012 .5 11.96 11.96 0 003.48 3.48 11.94 11.94 0 00.5 12c0 2.1.55 4.1 1.6 5.86L.5 23.5l5.8-1.56A11.94 11.94 0 0012 23.5h.01c2.12 0 4.12-.55 5.88-1.6A11.96 11.96 0 0023.5 12a11.96 11.96 0 00-1-5.52z" fill="#fff" opacity="0.08"/><path d="M17.38 14.48c-.24-.12-1.4-.69-1.62-.77-.22-.09-.38-.12-.55.12-.17.24-.66.77-.81.93-.15.17-.3.19-.54.06-.24-.12-1.01-.37-1.92-1.18-.71-.64-1.19-1.44-1.33-1.68-.14-.24-.015-.37.106-.49.11-.11.24-.3.36-.45.12-.16.16-.27.24-.45.08-.18.04-.34-.02-.46-.06-.12-.55-1.33-.76-1.82-.2-.47-.41-.41-.55-.41-.14 0-.3-.01-.46-.01-.15 0-.4.06-.61.29-.22.23-.85.83-.85 2.02s.87 2.34.99 2.5c.12.16 1.71 2.62 4.14 3.67 2.43 1.04 2.43.7 2.87.65.44-.05 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28z" fill="#fff"/></svg>
-          </div>
-          <div class="meta"><div class="name">WhatsApp</div><div class="hint">Chat with us</div></div>
-        </div>
-        <div class="handle"><div style="font-size:18px;font-weight:700;">➤</div></div>
-        <div class="check">✔</div>
-      </div>
+    <div class="link-btn" onclick="window.open('https://www.flipkart.com/','_blank')">
+      <svg viewBox="0 0 24 24" fill="#2874F0"><path d="M6 4h3l2 3h3l-4 5 1 1 5-6V4z"/></svg>
+      Flipkart
     </div>
 
-    <!-- Flipkart -->
-    <div class="row">
-      <div class="swipe flipkart" data-url="https://www.flipkart.com/">
-        <div class="fill"></div>
-        <div class="left">
-          <div class="iconBox"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M6 4h3l2 3h3l-4 5 1 1 5-6V4z" fill="#fff"/></svg></div>
-          <div class="meta"><div class="name">Flipkart</div><div class="hint">Visit our store</div></div>
-        </div>
-        <div class="handle"><div style="font-size:18px;font-weight:700;">➤</div></div>
-        <div class="check">✔</div>
-      </div>
+    <div class="link-btn" onclick="window.open('https://youtube.com/@pratap.traders','_blank')">
+      <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M10 15l5-3-5-3v6z"/></svg>
+      YouTube
     </div>
 
-    <!-- YouTube -->
-    <div class="row">
-      <div class="swipe youtube" data-url="https://youtube.com/@pratap.traders">
-        <div class="fill"></div>
-        <div class="left">
-          <div class="iconBox"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="3" fill="#fff" opacity="0.06"/><path d="M10 15l5-3-5-3v6z" fill="#fff"/></svg></div>
-          <div class="meta"><div class="name">YouTube</div><div class="hint">Subscribe to channel</div></div>
-        </div>
-        <div class="handle"><div style="font-size:18px;font-weight:700;">➤</div></div>
-        <div class="check">✔</div>
-      </div>
-    </div>
-
-    <!-- Instagram -->
-    <div class="row">
-      <div class="swipe instagram" data-url="https://instagram.com/pratap.traders">
-        <div class="fill"></div>
-        <div class="left">
-          <div class="iconBox"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#fff" opacity="0.08"/><circle cx="12" cy="12" r="3.2" fill="#fff"/><circle cx="17.2" cy="6.8" r="0.8" fill="#fff" opacity="0.9"/></svg></div>
-          <div class="meta"><div class="name">Instagram</div><div class="hint">Follow us</div></div>
-        </div>
-        <div class="handle"><div style="font-size:18px;font-weight:700;">➤</div></div>
-        <div class="check">✔</div>
-      </div>
+    <div class="link-btn" onclick="window.open('https://instagram.com/pratap.traders','_blank')">
+      <svg viewBox="0 0 24 24" fill="#f58529"><circle cx="12" cy="12" r="3.2"/><circle cx="17.2" cy="6.8" r="0.8"/></svg>
+      Instagram
     </div>
   </div>
 </div>
 
 <script>
 // Floating stars
-for(let i=0;i<40;i++){
-  let star=document.createElement('div');
-  star.className='star';
-  star.style.top=Math.random()*100+'%';
-  star.style.left=Math.random()*100+'%';
-  star.style.width=star.style.height=(2+Math.random()*4)+'px';
-  star.style.animationDuration=(8+Math.random()*6)+'s';
-  document.querySelector('.wrap').appendChild(star);
+for(let i=0;i<50;i++){
+  let s=document.createElement('div');
+  s.className='star';
+  s.style.top=Math.random()*100+'%';
+  s.style.left=Math.random()*100+'%';
+  s.style.width=s.style.height=(2+Math.random()*4)+'px';
+  s.style.animationDuration=(8+Math.random()*6)+'s';
+  document.getElementById('wrap').appendChild(s);
 }
 
-// Swipe logic
-document.querySelectorAll('.swipe').forEach(sw=>{
-  const handle=sw.querySelector('.handle');
-  const fill=sw.querySelector('.fill');
-  const check=sw.querySelector('.check');
-  const url=sw.dataset.url;
-  let min=8, handleW=handle.offsetWidth;
-  let max=sw.offsetWidth-handleW-8;
-  let cur=min, startX=0, handleStart=min;
-
-  const setStart=()=>{
-    cur=min;
-    handle.style.left=min+'px';
-    fill.style.width='0%';
-    sw.classList.remove('success');
-    check.style.opacity=0;
-  };
-
-  const apply=(x)=>{
-    if(x<min)x=min;if(x>max)x=max;
-    cur=x;
-    handle.style.left=x+'px';
-    fill.style.width=((x-min)/(max-min)*100)+'%';
-  };
-
-  handle.addEventListener('pointerdown',e=>{
-    e.preventDefault();
-    startX=e.clientX;
-    handleStart=cur;
-    handle.setPointerCapture(e.pointerId);
-    const move=(ev)=>{
-      apply(handleStart+ev.clientX-startX);
-    };
-    const up=(ev)=>{
-      handle.releasePointerCapture(e.pointerId);
-      window.removeEventListener('pointermove',move);
-      window.removeEventListener('pointerup',up);
-      if(cur>=max-12){
-        apply(max);sw.classList.add('success');check.style.opacity=1;
-        setTimeout(()=>{window.open(url,'_blank','noopener')},200);
-        setTimeout(setStart,1400);
-      } else setStart();
-    };
-    window.addEventListener('pointermove',move);
-    window.addEventListener('pointerup',up);
-  });
-});
-
-// Tap effects
+// Tap bubble effect
 document.body.addEventListener('click', e=>{
-  let bubble=document.createElement('div');
-  bubble.style.position='absolute';
-  bubble.style.left=e.clientX+'px';
-  bubble.style.top=e.clientY+'px';
-  bubble.style.width=bubble.style.height='12px';
-  bubble.style.background='radial-gradient(circle,#ffdf5a,#ff75a0)';
-  bubble.style.borderRadius='50%';
-  bubble.style.pointerEvents='none';
-  bubble.style.opacity=1;
-  bubble.style.transform='scale(0)';
-  bubble.style.transition='transform 0.6s ease-out,opacity 0.6s ease-out';
-  document.body.appendChild(bubble);
-  setTimeout(()=>{bubble.style.transform='scale(2)';bubble.style.opacity=0;},10);
-  setTimeout(()=>bubble.remove(),600);
+  let b=document.createElement('div');
+  b.className='bubble';
+  b.style.left=e.clientX+'px';
+  b.style.top=e.clientY+'px';
+  b.style.width=b.style.height=(10+Math.random()*10)+'px';
+  b.style.background='radial-gradient(circle,#ffdf5a,#ff75a0)';
+  document.body.appendChild(b);
+  setTimeout(()=>{b.style.transform='scale(2)';b.style.opacity=0;},10);
+  setTimeout(()=>b.remove(),600);
 });
 </script>
 </body>
 </html>
+
