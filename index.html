@@ -1,731 +1,366 @@
-<!doctype html>
+import React, { useState, useEffect, useRef } from "react";
 
-<html lang="hi">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Seller Inventory Manager — Template</title>
-  <style>
-    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#06b6d4;--glass:rgba(255,255,255,0.04)}
-    *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
-    body{margin:0;background:linear-gradient(180deg,#0b1320 0%, #071021 100%);color:#e6eef6}
-    header{padding:18px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid rgba(255,255,255,0.03)}
-    .logo{font-weight:700;letter-spacing:0.6px}
-    .container{max-width:1200px;margin:20px auto;padding:16px}
-    .grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
-    .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    input[type=text], input[type=number], input[type=date], select, textarea{width:100%;padding:9px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-    textarea{min-height:80px}
-    .two{display:flex;gap:10px}
-    .two .w{flex:1}
-    button{background:var(--accent);border:none;padding:10px 12px;border-radius:8px;color:#012;cursor:pointer;font-weight:600}
-    .muted{color:var(--muted);font-size:13px}
-    .product-list{max-height:62vh;overflow:auto;padding:8px}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left;font-size:13px}
-    .small{font-size:12px;color:var(--muted)}
-    .actions button{margin-right:6px}
-    .img-preview{width:60px;height:60px;border-radius:6px;object-fit:cover;border:1px solid rgba(255,255,255,0.04)}
-    .top-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .tag{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--glass);color:var(--muted);font-size:12px;margin-right:6px}
-    .search{display:flex;gap:8px;margin-bottom:10px}
-    .search input{flex:1}
-    .footer{margin-top:10px;color:var(--muted);font-size:13px}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:13px}
-    @media (max-width:880px){.grid{grid-template-columns:1fr;}.product-list{max-height:45vh}}
-  </style>
-</head>
-<body>
-  <header>
-    <div class="logo">Seller Inventory Manager</div>
-    <div class="muted">— Full product data template (local, offline)</div>
-  </header>  <div class="container">
-    <div class="grid">
-      <!-- LEFT: Product Form -->
-      <div class="card">
-        <h3 style="margin:6px 0 10px">Naya Product / Edit</h3>
-        <form id="productForm">
-          <label>Product Title</label>
-          <input type="text" id="title" placeholder="Product ka naam" required /><div style="height:10px"></div>
+// Mini-ERP single-file React app (TailwindCSS required)
+// Instructions: place this as src/App.jsx in a React project configured with Tailwind.
+// - Admin access protected by a simple password (see ADMIN_PASSWORD constant)
+// - Data persists to localStorage (key: "mini_erp_products")
+// - Image uploads are stored as base64 in localStorage (suitable for small catalogs)
+// - Features: Add product (admin only), View products, Edit (admin), Export CSV, Search & filters
 
-      <div class="two">
-        <div class="w">
-          <label>SKU / Barcode</label>
-          <input type="text" id="sku" placeholder="SKU ya barcode" />
-        </div>
-        <div class="w">
-          <label>Brand</label>
-          <input type="text" id="brand" placeholder="Brand name" />
-        </div>
-      </div>
+const ADMIN_PASSWORD = "Satyam@8177"; // <-- change this before deploying
+const STORAGE_KEY = "mini_erp_products";
 
-      <div style="height:10px"></div>
+export default function MiniERP() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [products, setProducts] = useState([]);
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState(null); // product being edited/viewed
+  const [showForm, setShowForm] = useState(false);
+  const fileRef = useRef(null);
 
-      <label>Marketplace</label>
-      <select id="marketplace">
-        <option value="">— Select —</option>
-        <option>Amazon</option>
-        <option>Flipkart</option>
-        <option>Meesho</option>
-        <option>Own Website</option>
-        <option>Other</option>
-      </select>
+  // form state
+  const emptyForm = {
+    id: null,
+    name: "",
+    sku: "",
+    category: "",
+    price: "",
+    mrp: "",
+    stock: "",
+    size: "",
+    color: "",
+    material: "",
+    description: "",
+    images: [] // base64 strings
+  };
+  const [form, setForm] = useState(emptyForm);
 
-      <div style="height:10px"></div>
+  useEffect(() => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try {
+        setProducts(JSON.parse(raw));
+      } catch (e) {
+        console.error("failed to parse products from storage", e);
+        setProducts([]);
+      }
+    }
+  }, []);
 
-      <div class="two">
-        <div class="w">
-          <label>Category / Subcategory</label>
-          <input type="text" id="category" placeholder="Clothing > Men > T-Shirt" />
-        </div>
-        <div class="w">
-          <label>Tags (comma)</label>
-          <input type="text" id="tags" placeholder="e.g. cotton,printed,summer" />
-        </div>
-      </div>
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+  }, [products]);
 
-      <div style="height:10px"></div>
+  function handleLogin(e) {
+    e.preventDefault();
+    if (passwordInput === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      setPasswordInput("");
+    } else {
+      alert("Password wrong — admin access denied");
+    }
+  }
 
-      <label>Sizes / Variants (comma)</label>
-      <input type="text" id="sizes" placeholder="S,M,L,XL" />
+  function handleLogout() {
+    setIsAdmin(false);
+  }
 
-      <div style="height:10px"></div>
+  function openAddForm() {
+    setForm({ ...emptyForm, id: Date.now() });
+    setShowForm(true);
+    setSelected(null);
+  }
 
-      <div class="two">
-        <div class="w">
-          <label>Purchase Price (₹)</label>
-          <input type="number" id="cost" min="0" step="0.01" />
-        </div>
-        <div class="w">
-          <label>Selling Price (₹)</label>
-          <input type="number" id="price" min="0" step="0.01" />
-        </div>
-      </div>
+  function openEditForm(p) {
+    setForm({ ...p });
+    setShowForm(true);
+    setSelected(p.id);
+  }
 
-      <div style="height:10px"></div>
+  function onFileChange(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setForm((f) => ({ ...f, images: [...f.images, ev.target.result] }));
+      };
+      reader.readAsDataURL(file);
+    });
+    // clear file input so same file can be reselected later
+    e.target.value = null;
+  }
 
-      <div class="two">
-        <div class="w">
-          <label>Shipping Cost (₹)</label>
-          <input type="number" id="shipping" min="0" step="0.01" />
-        </div>
-        <div class="w">
-          <label>GST %</label>
-          <input type="number" id="gst" min="0" step="0.01" value="0" />
-        </div>
-      </div>
+  function removeImage(idx) {
+    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== idx) }));
+  }
 
-      <div style="height:10px"></div>
+  function saveProduct(e) {
+    e.preventDefault();
+    const sanitized = { ...form };
+    // ensure numbers
+    sanitized.price = sanitized.price === "" ? "" : Number(sanitized.price);
+    sanitized.mrp = sanitized.mrp === "" ? "" : Number(sanitized.mrp);
+    sanitized.stock = sanitized.stock === "" ? 0 : Number(sanitized.stock);
+    if (!sanitized.name) {
+      alert("Product name is required");
+      return;
+    }
+    setProducts((prev) => {
+      const idx = prev.findIndex((p) => p.id === sanitized.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = sanitized;
+        return copy;
+      }
+      return [sanitized, ...prev];
+    });
+    setShowForm(false);
+    setForm(emptyForm);
+  }
 
-      <div class="two">
-        <div class="w">
-          <label>Weight (kg)</label>
-          <input type="number" id="weight" min="0" step="0.001" />
-        </div>
-        <div class="w">
-          <label>Dimensions (L×W×H cm)</label>
-          <input type="text" id="dimensions" placeholder="30x20x2" />
-        </div>
-      </div>
+  function deleteProduct(id) {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+  }
 
-      <div style="height:10px"></div>
+  function exportCSV() {
+    const headers = [
+      "id",
+      "name",
+      "sku",
+      "category",
+      "price",
+      "mrp",
+      "stock",
+      "size",
+      "color",
+      "material",
+      "description",
+      "images_count"
+    ];
+    const rows = products.map((p) => [
+      p.id,
+      csvSafe(p.name),
+      csvSafe(p.sku),
+      csvSafe(p.category),
+      p.price,
+      p.mrp,
+      p.stock,
+      csvSafe(p.size),
+      csvSafe(p.color),
+      csvSafe(p.material),
+      csvSafe(p.description),
+      p.images ? p.images.length : 0
+    ]);
+    const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `mini_erp_products_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
-      <label>Stock Qty</label>
-      <input type="number" id="stock" min="0" step="1" />
+  function csvSafe(s) {
+    if (s == null) return "";
+    return '"' + String(s).replace(/"/g, '""') + '"';
+  }
 
-      <div style="height:10px"></div>
+  const filtered = products.filter((p) => {
+    if (!query) return true;
+    const q = query.toLowerCase();
+    return (
+      String(p.name).toLowerCase().includes(q) ||
+      String(p.sku || "").toLowerCase().includes(q) ||
+      String(p.category || "").toLowerCase().includes(q) ||
+      String(p.color || "").toLowerCase().includes(q)
+    );
+  });
 
-      <label>Supplier / Manufacturer</label>
-      <input type="text" id="supplier" placeholder="Supplier name, contact" />
-
-      <div style="height:10px"></div>
-
-      <label>Purchase Date</label>
-      <input type="date" id="purchaseDate" />
-
-      <div style="height:10px"></div>
-
-      <label>Images (1-3) — preview below</label>
-      <input type="file" id="images" accept="image/*" multiple />
-      <div id="preview" style="display:flex;gap:8px;margin-top:8px"></div>
-
-      <div style="height:10px"></div>
-
-      <label>Notes / Listing Description</label>
-      <textarea id="notes" placeholder="Extra details, listing copy, measurements..."></textarea>
-
-      <div style="height:12px"></div>
-
-      <div style="display:flex;gap:8px;align-items:center">
-        <button type="submit">Save Product</button>
-        <button type="button" id="clearForm" style="background:#334155;color:#fff">Reset</button>
-        <div style="flex:1"></div>
-        <div class="pill small">Auto-save: localStorage</div>
-      </div>
-    </form>
-
-    <div class="footer">Tip: Yeh file locally browser me open karke use karo. Data browser ke localStorage me save hota hai — agar host karna hai to simple static host (GitHub Pages) pe daal do.</div>
-  </div>
-
-  <!-- RIGHT: Product List & Tools -->
-  <div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <h3 style="margin:0">Products</h3>
-        <div class="top-actions">
-          <div class="search">
-            <input id="q" placeholder="Search by title, SKU, tag..." />
-            <button id="searchBtn">Search</button>
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-6xl mx-auto">
+        <header className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Mini-ERP — Clothing Store</h1>
+            <p className="text-sm text-gray-600">Manage product details, images, stock — simple and local</p>
           </div>
-          <button id="exportCsv">Export CSV</button>
-          <button id="exportJson">Export JSON</button>
-          <button id="importBtn" style="background:#64748b">Import JSON</button>
-          <input type="file" id="importFile" accept="application/json" style="display:none" />
-          <button id="clearAll" style="background:#ef4444;color:white">Clear All</button>
-        </div>
-      </div>
-
-      <div class="product-list card" style="padding:8px">
-        <table id="productsTable">
-          <thead>
-            <tr>
-              <th style="width:40px">#</th>
-              <th>Preview</th>
-              <th>Title / SKU</th>
-              <th>Marketplace</th>
-              <th class="small">Price</th>
-              <th class="small">Stock</th>
-              <th class="small">Tags</th>
-              <th style="width:160px">Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div style="margin-top:8px" class="small muted">Use edit to update listing before pushing to Amazon/Flipkart. Export CSV to format for bulk upload templates.</div>
-    </div>
-
-    <div style="height:12px"></div>
-
-    <div class="card">
-      <h4 style="margin:4px 0">Quick Analytics</h4>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <div class="card" style="padding:10px;min-width:180px">Total SKUs: <div id="statTotal">0</div></div>
-        <div class="card" style="padding:10px;min-width:180px">Total Stock: <div id="statStock">0</div></div>
-        <div class="card" style="padding:10px;min-width:180px">Avg Margin: <div id="statMargin">0%</div></div>
-      </div>
-      <div class="small muted" style="margin-top:8px">Margin = (Selling - Cost - Shipping - GST) / Selling * 100 (approx)</div>
-    </div>
-  </div>
-</div>
-
-  </div>  <script>
-    // Simple offline inventory manager — all data stored in localStorage under key 'siv_products'
-    const form = document.getElementById('productForm');
-    const preview = document.getElementById('preview');
-    const imagesInput = document.getElementById('images');
-    const productsKey = 'siv_products_v1';
-    let products = JSON.parse(localStorage.getItem(productsKey) || '[]');
-    let editingIndex = -1;
-
-    function dataURL(file){
-      return new Promise((res, rej)=>{
-        const reader = new FileReader();
-        reader.onload = e => res(e.target.result);
-        reader.onerror = e => rej(e);
-        reader.readAsDataURL(file);
-      })
-    }
-
-    imagesInput.addEventListener('change', async e => {
-      preview.innerHTML = '';
-      const files = Array.from(e.target.files).slice(0,3);
-      for (const f of files){
-        try{
-          const url = await dataURL(f);
-          const img = document.createElement('img'); img.src = url; img.className='img-preview';
-          preview.appendChild(img);
-        }catch(err){console.error(err)}
-      }
-    })
-
-    form.addEventListener('submit', async ev => {
-      ev.preventDefault();
-      const obj = await readForm();
-      if(editingIndex >= 0){
-        products[editingIndex] = obj; editingIndex = -1;
-      } else products.push(obj);
-      saveAndRender(); form.reset(); preview.innerHTML='';
-    })
-
-    async function readForm(){
-      const imgs = Array.from(imagesInput.files).slice(0,3);
-      const dataImgs = [];
-      for(const f of imgs){
-        try{dataImgs.push(await dataURL(f))}catch(e){console.warn(e)}
-      }
-      const cost = parseFloat(document.getElementById('cost').value || 0);
-      const price = parseFloat(document.getElementById('price').value || 0);
-      const shipping = parseFloat(document.getElementById('shipping').value || 0);
-      const gst = parseFloat(document.getElementById('gst').value || 0);
-      const stock = parseInt(document.getElementById('stock').value || 0);
-
-      return {
-        id: Date.now() + Math.floor(Math.random()*999),
-        title: document.getElementById('title').value.trim(),
-        sku: document.getElementById('sku').value.trim(),
-        brand: document.getElementById('brand').value.trim(),
-        marketplace: document.getElementById('marketplace').value,
-        category: document.getElementById('category').value.trim(),
-        tags: document.getElementById('tags').value.split(',').map(s=>s.trim()).filter(Boolean),
-        sizes: document.getElementById('sizes').value.split(',').map(s=>s.trim()).filter(Boolean),
-        cost, price, shipping, gst, weight: parseFloat(document.getElementById('weight').value || 0),
-        dimensions: document.getElementById('dimensions').value.trim(),
-        stock, supplier: document.getElementById('supplier').value.trim(),
-        purchaseDate: document.getElementById('purchaseDate').value || null,
-        images: dataImgs,
-        notes: document.getElementById('notes').value.trim()
-      }
-    }
-
-    function saveAndRender(){
-      localStorage.setItem(productsKey, JSON.stringify(products));
-      renderProducts(); updateStats();
-    }
-
-    function renderProducts(list = products){
-      const tbody = document.querySelector('#productsTable tbody'); tbody.innerHTML='';
-      list.forEach((p,i)=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${i+1}</td>
-          <td>${p.images && p.images[0] ? '<img src="'+p.images[0]+'" class="img-preview"/>' : ''}</td>
-          <td><strong>${escapeHtml(p.title||'—')}</strong><div class="small">${escapeHtml(p.sku||'')}</div></td>
-          <td>${escapeHtml(p.marketplace||'')}</td>
-          <td class="small">₹${(p.price||0).toFixed(2)}</td>
-          <td class="small">${p.stock||0}</td>
-          <td class="small">${(p.tags||[]).slice(0,3).map(t=>'<span class="tag">'+escapeHtml(t)+'</span>').join('')}</td>
-          <td class="actions">
-            <button onclick="editProduct(${p.id})">Edit</button>
-            <button onclick="deleteProduct(${p.id})" style="background:#ef4444;color:#fff">Delete</button>
-            <button onclick="duplicateProduct(${p.id})" style="background:#64748b;color:#fff">Duplicate</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      })
-    }
-
-    function escapeHtml(s){return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-
-    window.editProduct = function(id){
-      const idx = products.findIndex(p=>p.id===id); if(idx<0) return; const p = products[idx]; editingIndex = idx;
-      document.getElementById('title').value = p.title || '';
-      document.getElementById('sku').value = p.sku || '';
-      document.getElementById('brand').value = p.brand || '';
-      document.getElementById('marketplace').value = p.marketplace || '';
-      document.getElementById('category').value = p.category || '';
-      document.getElementById('tags').value = (p.tags||[]).join(',');
-      document.getElementById('sizes').value = (p.sizes||[]).join(',');
-      document.getElementById('cost').value = p.cost || '';
-      document.getElementById('price').value = p.price || '';
-      document.getElementById('shipping').value = p.shipping || '';
-      document.getElementById('gst').value = p.gst || 0;
-      document.getElementById('weight').value = p.weight || '';
-      document.getElementById('dimensions').value = p.dimensions || '';
-      document.getElementById('stock').value = p.stock || '';
-      document.getElementById('supplier').value = p.supplier || '';
-      document.getElementById('purchaseDate').value = p.purchaseDate || '';
-      document.getElementById('notes').value = p.notes || '';
-      // show previews (images can't be re-populated to input[file] — show thumbnails)
-      preview.innerHTML=''; (p.images||[]).slice(0,3).forEach(src=>{const img=document.createElement('img');img.src=src;img.className='img-preview';preview.appendChild(img)})
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-
-    window.deleteProduct = function(id){
-      if(!confirm('Delete this product?')) return; products = products.filter(p=>p.id!==id); saveAndRender();
-    }
-
-    window.duplicateProduct = function(id){
-      const p = products.find(x=>x.id===id); if(!p) return; const copy = JSON.parse(JSON.stringify(p)); copy.id = Date.now()+Math.floor(Math.random()*999); copy.sku = (copy.sku||'') + '-COPY'; products.push(copy); saveAndRender();
-    }
-
-    document.getElementById('searchBtn').addEventListener('click', ()=>{
-      const q = document.getElementById('q').value.trim().toLowerCase();
-      if(!q) return renderProducts();
-      const filtered = products.filter(p=>{
-        return (p.title||'').toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q) || (p.tags||[]).join(' ').toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q)
-      })
-      renderProducts(filtered);
-    })
-
-    document.getElementById('clearForm').addEventListener('click', ()=>{form.reset(); preview.innerHTML=''; editingIndex=-1})
-
-    document.getElementById('exportJson').addEventListener('click', ()=>{
-      const data = JSON.stringify(products, null, 2); downloadFile('products.json', data, 'application/json')
-    })
-
-    document.getElementById('exportCsv').addEventListener('click', ()=>{
-      if(!products.length){alert('Koi products nahi');return}
-      const cols = ['id','title','sku','brand','marketplace','category','tags','sizes','cost','price','shipping','gst','weight','dimensions','stock','supplier','purchaseDate','notes'];
-      const rows = products.map(p=>cols.map(c=>escapeCsv((p[c] instanceof Array? p[c].join('|') : (p[c]||'')))).join(','));
-      const csv = cols.join(',') + '\n' + rows.join('\n');
-      downloadFile('products.csv', csv, 'text/csv');
-    })
-
-    function escapeCsv(s){return '"'+(s+'').replace(/"/g,'""')+'"'}
-
-    function downloadFile(name, data, type){
-      const blob = new Blob([data], {type}); const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url);
-    }
-
-    document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click())
-    document.getElementById('importFile').addEventListener('change', ev=>{
-      const f = ev.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = e=>{
-        try{ const json = JSON.parse(e.target.result); if(Array.isArray(json)) products = products.concat(json); else alert('JSON should be an array of products'); saveAndRender(); }catch(err){alert('Invalid JSON')}
-      }; reader.readAsText(f);
-    })
-
-    document.getElementById('clearAll').addEventListener('click', ()=>{ if(confirm('Clear all products and localStorage?')){products=[]; localStorage.removeItem(productsKey); renderProducts(); updateStats();}})
-
-    function updateStats(){
-      document.getElementById('statTotal').innerText = products.length;
-      const totalStock = products.reduce((s,p)=>s + (p.stock||0),0);
-      document.getElementById('statStock').innerText = totalStock;
-      const margins = products.map(p=>{
-        const sell = p.price||0; const cost = p.cost||0; const ship = p.shipping||0; const gst = (p.gst||0);
-        if(!sell) return 0; const margin = ((sell - cost - ship - (sell*gst/100))/sell) * 100; return margin;
-      }).filter(n=>isFinite(n));
-      const avg = margins.length? (margins.reduce((a,b)=>a+b,0)/margins.length):0; document.getElementById('statMargin').innerText = avg.toFixed(2)+'%';
-    }
-
-    // initial render
-    renderProducts(); updateStats();
-
-    // autosave form draft (very small)
-    const draftKey = 'siv_draft_v1';
-    setInterval(()=>{
-      try{
-        const draft = {
-          title:document.getElementById('title').value,
-          sku:document.getElementById('sku').value,
-          brand:document.getElementById('brand').value,
-        };
-        localStorage.setItem(draftKey, JSON.stringify(draft));
-      }catch(e){}
-    },3000);
-
-  </script></body>
-</html>          <input type="number" id="shipping" min="0" step="0.01" />
-        </div>
-        <div class="w">
-          <label>GST %</label>
-          <input type="number" id="gst" min="0" step="0.01" value="0" />
-        </div>
-      </div>
-
-      <div style="height:10px"></div>
-
-      <div class="two">
-        <div class="w">
-          <label>Weight (kg)</label>
-          <input type="number" id="weight" min="0" step="0.001" />
-        </div>
-        <div class="w">
-          <label>Dimensions (L×W×H cm)</label>
-          <input type="text" id="dimensions" placeholder="30x20x2" />
-        </div>
-      </div>
-
-      <div style="height:10px"></div>
-
-      <label>Stock Qty</label>
-      <input type="number" id="stock" min="0" step="1" />
-
-      <div style="height:10px"></div>
-
-      <label>Supplier / Manufacturer</label>
-      <input type="text" id="supplier" placeholder="Supplier name, contact" />
-
-      <div style="height:10px"></div>
-
-      <label>Purchase Date</label>
-      <input type="date" id="purchaseDate" />
-
-      <div style="height:10px"></div>
-
-      <label>Images (1-3) — preview below</label>
-      <input type="file" id="images" accept="image/*" multiple />
-      <div id="preview" style="display:flex;gap:8px;margin-top:8px"></div>
-
-      <div style="height:10px"></div>
-
-      <label>Notes / Listing Description</label>
-      <textarea id="notes" placeholder="Extra details, listing copy, measurements..."></textarea>
-
-      <div style="height:12px"></div>
-
-      <div style="display:flex;gap:8px;align-items:center">
-        <button type="submit">Save Product</button>
-        <button type="button" id="clearForm" style="background:#334155;color:#fff">Reset</button>
-        <div style="flex:1"></div>
-        <div class="pill small">Auto-save: localStorage</div>
-      </div>
-    </form>
-
-    <div class="footer">Tip: Yeh file locally browser me open karke use karo. Data browser ke localStorage me save hota hai — agar host karna hai to simple static host (GitHub Pages) pe daal do.</div>
-  </div>
-
-  <!-- RIGHT: Product List & Tools -->
-  <div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <h3 style="margin:0">Products</h3>
-        <div class="top-actions">
-          <div class="search">
-            <input id="q" placeholder="Search by title, SKU, tag..." />
-            <button id="searchBtn">Search</button>
+          <div className="flex items-center gap-4">
+            <input
+              placeholder="Search by name / SKU / category"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="border px-3 py-2 rounded-md w-80"
+            />
+            <div>
+              {isAdmin ? (
+                <div className="flex gap-2 items-center">
+                  <button onClick={openAddForm} className="px-3 py-2 bg-blue-600 text-white rounded-md">Add Product</button>
+                  <button onClick={exportCSV} className="px-3 py-2 border rounded-md">Export CSV</button>
+                  <button onClick={handleLogout} className="px-3 py-2 border rounded-md">Logout</button>
+                </div>
+              ) : (
+                <form onSubmit={handleLogin} className="flex gap-2 items-center">
+                  <input
+                    type="password"
+                    placeholder="Admin password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    className="border px-3 py-2 rounded-md"
+                  />
+                  <button className="px-3 py-2 bg-green-600 text-white rounded-md">Admin Sign in</button>
+                </form>
+              )}
+            </div>
           </div>
-          <button id="exportCsv">Export CSV</button>
-          <button id="exportJson">Export JSON</button>
-          <button id="importBtn" style="background:#64748b">Import JSON</button>
-          <input type="file" id="importFile" accept="application/json" style="display:none" />
-          <button id="clearAll" style="background:#ef4444;color:white">Clear All</button>
-        </div>
-      </div>
+        </header>
 
-      <div class="product-list card" style="padding:8px">
-        <table id="productsTable">
-          <thead>
-            <tr>
-              <th style="width:40px">#</th>
-              <th>Preview</th>
-              <th>Title / SKU</th>
-              <th>Marketplace</th>
-              <th class="small">Price</th>
-              <th class="small">Stock</th>
-              <th class="small">Tags</th>
-              <th style="width:160px">Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+        <main>
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2">
+              <div className="space-y-4">
+                {filtered.length === 0 && (
+                  <div className="p-6 bg-white rounded-md shadow">No products found.</div>
+                )}
+                {filtered.map((p) => (
+                  <div key={p.id} className="bg-white rounded-md shadow p-4 flex gap-4">
+                    <div className="w-28 h-28 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+                      {p.images && p.images[0] ? (
+                        <img src={p.images[0]} alt={p.name} className="object-cover w-full h-full" />
+                      ) : (
+                        <div className="text-xs text-gray-400">No image</div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold">{p.name}</h3>
+                          <div className="text-sm text-gray-500">SKU: {p.sku || "—"} • {p.category || "—"}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold">{p.price ? `₹${p.price}` : "—"}</div>
+                          <div className="text-sm text-gray-500">Stock: {p.stock ?? 0}</div>
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-600">{p.description}</p>
 
-      <div style="margin-top:8px" class="small muted">Use edit to update listing before pushing to Amazon/Flipkart. Export CSV to format for bulk upload templates.</div>
+                      <div className="mt-3 flex gap-2">
+                        <button onClick={() => setSelected(p)} className="px-2 py-1 border rounded">Quick view</button>
+                        {isAdmin ? (
+                          <>
+                            <button onClick={() => openEditForm(p)} className="px-2 py-1 bg-yellow-400 rounded">Edit</button>
+                            <button onClick={() => deleteProduct(p.id)} className="px-2 py-1 bg-red-500 text-white rounded">Delete</button>
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <aside className="bg-white p-4 rounded-md shadow">
+              <h2 className="font-semibold mb-2">Inventory summary</h2>
+              <div className="text-sm text-gray-700">Total products: {products.length}</div>
+              <div className="text-sm text-gray-700">Total images stored: {products.reduce((s, p) => s + (p.images ? p.images.length : 0), 0)}</div>
+
+              <div className="mt-4">
+                <h3 className="font-medium">Quick filters</h3>
+                <div className="mt-2 flex flex-col gap-2">
+                  <button onClick={() => setQuery('')} className="text-sm px-2 py-1 border rounded">Clear search</button>
+                  <button onClick={() => setQuery('shirt')} className="text-sm px-2 py-1 border rounded">Filter: shirt</button>
+                  <button onClick={() => setQuery('kurta')} className="text-sm px-2 py-1 border rounded">Filter: kurta</button>
+                </div>
+              </div>
+
+              <div className="mt-6 text-xs text-gray-500">
+                Tip: Admin can add / edit / delete. Others can only view and quick-view products.
+              </div>
+            </aside>
+          </section>
+
+          {/* product form modal / panel */}
+          {showForm && (
+            <div className="fixed inset-0 bg-black/40 flex items-start justify-center p-6 z-50">
+              <div className="bg-white rounded-md w-full max-w-2xl p-4 shadow">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{selected ? 'Edit product' : 'Add product'}</h3>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setShowForm(false); setForm(emptyForm); }} className="px-3 py-1 border rounded">Cancel</button>
+                  </div>
+                </div>
+                <form onSubmit={saveProduct} className="mt-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <input value={form.name} onChange={(e)=>setForm(f=>({...f,name:e.target.value}))} placeholder="Product name*" className="border p-2 rounded" />
+                    <input value={form.sku} onChange={(e)=>setForm(f=>({...f,sku:e.target.value}))} placeholder="SKU" className="border p-2 rounded" />
+                    <input value={form.category} onChange={(e)=>setForm(f=>({...f,category:e.target.value}))} placeholder="Category" className="border p-2 rounded" />
+                    <input value={form.price} onChange={(e)=>setForm(f=>({...f,price:e.target.value}))} placeholder="Sale price" className="border p-2 rounded" />
+                    <input value={form.mrp} onChange={(e)=>setForm(f=>({...f,mrp:e.target.value}))} placeholder="MRP" className="border p-2 rounded" />
+                    <input value={form.stock} onChange={(e)=>setForm(f=>({...f,stock:e.target.value}))} placeholder="Stock" className="border p-2 rounded" />
+                    <input value={form.size} onChange={(e)=>setForm(f=>({...f,size:e.target.value}))} placeholder="Size (comma separated)" className="border p-2 rounded col-span-1" />
+                    <input value={form.color} onChange={(e)=>setForm(f=>({...f,color:e.target.value}))} placeholder="Color" className="border p-2 rounded col-span-1" />
+                    <input value={form.material} onChange={(e)=>setForm(f=>({...f,material:e.target.value}))} placeholder="Material" className="border p-2 rounded" />
+                  </div>
+
+                  <textarea value={form.description} onChange={(e)=>setForm(f=>({...f,description:e.target.value}))} placeholder="Description" className="border p-2 rounded w-full h-24" />
+
+                  <div>
+                    <label className="block text-sm mb-2">Images (you can upload multiple)</label>
+                    <input ref={fileRef} type="file" accept="image/*" multiple onChange={onFileChange} className="" />
+                    <div className="mt-2 flex gap-2 flex-wrap">
+                      {(form.images || []).map((src, idx) => (
+                        <div key={idx} className="w-20 h-20 rounded overflow-hidden relative border">
+                          <img src={src} alt={`img-${idx}`} className="w-full h-full object-cover" />
+                          <button type="button" onClick={()=>removeImage(idx)} className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1 rounded-sm">x</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 justify-end">
+                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Save product</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* quick view drawer */}
+          {selected && (
+            <div className="fixed inset-0 bg-black/30 flex items-end z-40">
+              <div className="bg-white w-full max-h-[80%] overflow-auto rounded-t-lg p-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{selected.name}</h3>
+                  <button onClick={() => setSelected(null)} className="px-3 py-1 border rounded">Close</button>
+                </div>
+                <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-1">
+                    {selected.images && selected.images.length ? (
+                      <img src={selected.images[0]} alt={selected.name} className="w-full h-64 object-cover rounded" />
+                    ) : (
+                      <div className="w-full h-64 bg-gray-100 flex items-center justify-center">No image</div>
+                    )}
+                  </div>
+                  <div className="md:col-span-2">
+                    <div className="text-sm text-gray-700">SKU: {selected.sku}</div>
+                    <div className="text-sm text-gray-700">Category: {selected.category}</div>
+                    <div className="text-xl font-bold mt-2">{selected.price ? `₹${selected.price}` : '—'}</div>
+                    <div className="text-sm text-gray-600 mt-2">{selected.description}</div>
+                    <div className="mt-4 text-sm text-gray-600">Size: {selected.size}</div>
+                    <div className="mt-1 text-sm text-gray-600">Color: {selected.color}</div>
+                    <div className="mt-1 text-sm text-gray-600">Material: {selected.material}</div>
+                    <div className="mt-3 text-sm text-gray-500">Images: {selected.images ? selected.images.length : 0}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </main>
+      </div>
     </div>
-
-    <div style="height:12px"></div>
-
-    <div class="card">
-      <h4 style="margin:4px 0">Quick Analytics</h4>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <div class="card" style="padding:10px;min-width:180px">Total SKUs: <div id="statTotal">0</div></div>
-        <div class="card" style="padding:10px;min-width:180px">Total Stock: <div id="statStock">0</div></div>
-        <div class="card" style="padding:10px;min-width:180px">Avg Margin: <div id="statMargin">0%</div></div>
-      </div>
-      <div class="small muted" style="margin-top:8px">Margin = (Selling - Cost - Shipping - GST) / Selling * 100 (approx)</div>
-    </div>
-  </div>
-</div>
-
-  </div>  <script>
-    // Simple offline inventory manager — all data stored in localStorage under key 'siv_products'
-    const form = document.getElementById('productForm');
-    const preview = document.getElementById('preview');
-    const imagesInput = document.getElementById('images');
-    const productsKey = 'siv_products_v1';
-    let products = JSON.parse(localStorage.getItem(productsKey) || '[]');
-    let editingIndex = -1;
-
-    function dataURL(file){
-      return new Promise((res, rej)=>{
-        const reader = new FileReader();
-        reader.onload = e => res(e.target.result);
-        reader.onerror = e => rej(e);
-        reader.readAsDataURL(file);
-      })
-    }
-
-    imagesInput.addEventListener('change', async e => {
-      preview.innerHTML = '';
-      const files = Array.from(e.target.files).slice(0,3);
-      for (const f of files){
-        try{
-          const url = await dataURL(f);
-          const img = document.createElement('img'); img.src = url; img.className='img-preview';
-          preview.appendChild(img);
-        }catch(err){console.error(err)}
-      }
-    })
-
-    form.addEventListener('submit', async ev => {
-      ev.preventDefault();
-      const obj = await readForm();
-      if(editingIndex >= 0){
-        products[editingIndex] = obj; editingIndex = -1;
-      } else products.push(obj);
-      saveAndRender(); form.reset(); preview.innerHTML='';
-    })
-
-    async function readForm(){
-      const imgs = Array.from(imagesInput.files).slice(0,3);
-      const dataImgs = [];
-      for(const f of imgs){
-        try{dataImgs.push(await dataURL(f))}catch(e){console.warn(e)}
-      }
-      const cost = parseFloat(document.getElementById('cost').value || 0);
-      const price = parseFloat(document.getElementById('price').value || 0);
-      const shipping = parseFloat(document.getElementById('shipping').value || 0);
-      const gst = parseFloat(document.getElementById('gst').value || 0);
-      const stock = parseInt(document.getElementById('stock').value || 0);
-
-      return {
-        id: Date.now() + Math.floor(Math.random()*999),
-        title: document.getElementById('title').value.trim(),
-        sku: document.getElementById('sku').value.trim(),
-        brand: document.getElementById('brand').value.trim(),
-        marketplace: document.getElementById('marketplace').value,
-        category: document.getElementById('category').value.trim(),
-        tags: document.getElementById('tags').value.split(',').map(s=>s.trim()).filter(Boolean),
-        sizes: document.getElementById('sizes').value.split(',').map(s=>s.trim()).filter(Boolean),
-        cost, price, shipping, gst, weight: parseFloat(document.getElementById('weight').value || 0),
-        dimensions: document.getElementById('dimensions').value.trim(),
-        stock, supplier: document.getElementById('supplier').value.trim(),
-        purchaseDate: document.getElementById('purchaseDate').value || null,
-        images: dataImgs,
-        notes: document.getElementById('notes').value.trim()
-      }
-    }
-
-    function saveAndRender(){
-      localStorage.setItem(productsKey, JSON.stringify(products));
-      renderProducts(); updateStats();
-    }
-
-    function renderProducts(list = products){
-      const tbody = document.querySelector('#productsTable tbody'); tbody.innerHTML='';
-      list.forEach((p,i)=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${i+1}</td>
-          <td>${p.images && p.images[0] ? '<img src="'+p.images[0]+'" class="img-preview"/>' : ''}</td>
-          <td><strong>${escapeHtml(p.title||'—')}</strong><div class="small">${escapeHtml(p.sku||'')}</div></td>
-          <td>${escapeHtml(p.marketplace||'')}</td>
-          <td class="small">₹${(p.price||0).toFixed(2)}</td>
-          <td class="small">${p.stock||0}</td>
-          <td class="small">${(p.tags||[]).slice(0,3).map(t=>'<span class="tag">'+escapeHtml(t)+'</span>').join('')}</td>
-          <td class="actions">
-            <button onclick="editProduct(${p.id})">Edit</button>
-            <button onclick="deleteProduct(${p.id})" style="background:#ef4444;color:#fff">Delete</button>
-            <button onclick="duplicateProduct(${p.id})" style="background:#64748b;color:#fff">Duplicate</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      })
-    }
-
-    function escapeHtml(s){return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-
-    window.editProduct = function(id){
-      const idx = products.findIndex(p=>p.id===id); if(idx<0) return; const p = products[idx]; editingIndex = idx;
-      document.getElementById('title').value = p.title || '';
-      document.getElementById('sku').value = p.sku || '';
-      document.getElementById('brand').value = p.brand || '';
-      document.getElementById('marketplace').value = p.marketplace || '';
-      document.getElementById('category').value = p.category || '';
-      document.getElementById('tags').value = (p.tags||[]).join(',');
-      document.getElementById('sizes').value = (p.sizes||[]).join(',');
-      document.getElementById('cost').value = p.cost || '';
-      document.getElementById('price').value = p.price || '';
-      document.getElementById('shipping').value = p.shipping || '';
-      document.getElementById('gst').value = p.gst || 0;
-      document.getElementById('weight').value = p.weight || '';
-      document.getElementById('dimensions').value = p.dimensions || '';
-      document.getElementById('stock').value = p.stock || '';
-      document.getElementById('supplier').value = p.supplier || '';
-      document.getElementById('purchaseDate').value = p.purchaseDate || '';
-      document.getElementById('notes').value = p.notes || '';
-      // show previews (images can't be re-populated to input[file] — show thumbnails)
-      preview.innerHTML=''; (p.images||[]).slice(0,3).forEach(src=>{const img=document.createElement('img');img.src=src;img.className='img-preview';preview.appendChild(img)})
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-
-    window.deleteProduct = function(id){
-      if(!confirm('Delete this product?')) return; products = products.filter(p=>p.id!==id); saveAndRender();
-    }
-
-    window.duplicateProduct = function(id){
-      const p = products.find(x=>x.id===id); if(!p) return; const copy = JSON.parse(JSON.stringify(p)); copy.id = Date.now()+Math.floor(Math.random()*999); copy.sku = (copy.sku||'') + '-COPY'; products.push(copy); saveAndRender();
-    }
-
-    document.getElementById('searchBtn').addEventListener('click', ()=>{
-      const q = document.getElementById('q').value.trim().toLowerCase();
-      if(!q) return renderProducts();
-      const filtered = products.filter(p=>{
-        return (p.title||'').toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q) || (p.tags||[]).join(' ').toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q)
-      })
-      renderProducts(filtered);
-    })
-
-    document.getElementById('clearForm').addEventListener('click', ()=>{form.reset(); preview.innerHTML=''; editingIndex=-1})
-
-    document.getElementById('exportJson').addEventListener('click', ()=>{
-      const data = JSON.stringify(products, null, 2); downloadFile('products.json', data, 'application/json')
-    })
-
-    document.getElementById('exportCsv').addEventListener('click', ()=>{
-      if(!products.length){alert('Koi products nahi');return}
-      const cols = ['id','title','sku','brand','marketplace','category','tags','sizes','cost','price','shipping','gst','weight','dimensions','stock','supplier','purchaseDate','notes'];
-      const rows = products.map(p=>cols.map(c=>escapeCsv((p[c] instanceof Array? p[c].join('|') : (p[c]||'')))).join(','));
-      const csv = cols.join(',') + '\n' + rows.join('\n');
-      downloadFile('products.csv', csv, 'text/csv');
-    })
-
-    function escapeCsv(s){return '"'+(s+'').replace(/"/g,'""')+'"'}
-
-    function downloadFile(name, data, type){
-      const blob = new Blob([data], {type}); const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url);
-    }
-
-    document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click())
-    document.getElementById('importFile').addEventListener('change', ev=>{
-      const f = ev.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = e=>{
-        try{ const json = JSON.parse(e.target.result); if(Array.isArray(json)) products = products.concat(json); else alert('JSON should be an array of products'); saveAndRender(); }catch(err){alert('Invalid JSON')}
-      }; reader.readAsText(f);
-    })
-
-    document.getElementById('clearAll').addEventListener('click', ()=>{ if(confirm('Clear all products and localStorage?')){products=[]; localStorage.removeItem(productsKey); renderProducts(); updateStats();}})
-
-    function updateStats(){
-      document.getElementById('statTotal').innerText = products.length;
-      const totalStock = products.reduce((s,p)=>s + (p.stock||0),0);
-      document.getElementById('statStock').innerText = totalStock;
-      const margins = products.map(p=>{
-        const sell = p.price||0; const cost = p.cost||0; const ship = p.shipping||0; const gst = (p.gst||0);
-        if(!sell) return 0; const margin = ((sell - cost - ship - (sell*gst/100))/sell) * 100; return margin;
-      }).filter(n=>isFinite(n));
-      const avg = margins.length? (margins.reduce((a,b)=>a+b,0)/margins.length):0; document.getElementById('statMargin').innerText = avg.toFixed(2)+'%';
-    }
-
-    // initial render
-    renderProducts(); updateStats();
-
-    // autosave form draft (very small)
-    const draftKey = 'siv_draft_v1';
-    setInterval(()=>{
-      try{
-        const draft = {
-          title:document.getElementById('title').value,
-          sku:document.getElementById('sku').value,
-          brand:document.getElementById('brand').value,
-        };
-        localStorage.setItem(draftKey, JSON.stringify(draft));
-      }catch(e){}
-    },3000);
-
-  </script></body>
-</html>
+  );
+}
