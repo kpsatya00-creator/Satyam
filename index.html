@@ -1,366 +1,105 @@
-import React, { useState, useEffect, useRef } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clothing ERP - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap / Tailwind CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
 
-// Mini-ERP single-file React app (TailwindCSS required)
-// Instructions: place this as src/App.jsx in a React project configured with Tailwind.
-// - Admin access protected by a simple password (see ADMIN_PASSWORD constant)
-// - Data persists to localStorage (key: "mini_erp_products")
-// - Image uploads are stored as base64 in localStorage (suitable for small catalogs)
-// - Features: Add product (admin only), View products, Edit (admin), Export CSV, Search & filters
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-dark px-3">
+    <a class="navbar-brand" href="#">Clothing ERP</a>
+    <button class="btn btn-outline-light">Admin Login</button>
+  </nav>
 
-const ADMIN_PASSWORD = "Satyam@8177"; // <-- change this before deploying
-const STORAGE_KEY = "mini_erp_products";
-
-export default function MiniERP() {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [passwordInput, setPasswordInput] = useState("");
-  const [products, setProducts] = useState([]);
-  const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState(null); // product being edited/viewed
-  const [showForm, setShowForm] = useState(false);
-  const fileRef = useRef(null);
-
-  // form state
-  const emptyForm = {
-    id: null,
-    name: "",
-    sku: "",
-    category: "",
-    price: "",
-    mrp: "",
-    stock: "",
-    size: "",
-    color: "",
-    material: "",
-    description: "",
-    images: [] // base64 strings
-  };
-  const [form, setForm] = useState(emptyForm);
-
-  useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        setProducts(JSON.parse(raw));
-      } catch (e) {
-        console.error("failed to parse products from storage", e);
-        setProducts([]);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-  }, [products]);
-
-  function handleLogin(e) {
-    e.preventDefault();
-    if (passwordInput === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      setPasswordInput("");
-    } else {
-      alert("Password wrong — admin access denied");
-    }
-  }
-
-  function handleLogout() {
-    setIsAdmin(false);
-  }
-
-  function openAddForm() {
-    setForm({ ...emptyForm, id: Date.now() });
-    setShowForm(true);
-    setSelected(null);
-  }
-
-  function openEditForm(p) {
-    setForm({ ...p });
-    setShowForm(true);
-    setSelected(p.id);
-  }
-
-  function onFileChange(e) {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setForm((f) => ({ ...f, images: [...f.images, ev.target.result] }));
-      };
-      reader.readAsDataURL(file);
-    });
-    // clear file input so same file can be reselected later
-    e.target.value = null;
-  }
-
-  function removeImage(idx) {
-    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== idx) }));
-  }
-
-  function saveProduct(e) {
-    e.preventDefault();
-    const sanitized = { ...form };
-    // ensure numbers
-    sanitized.price = sanitized.price === "" ? "" : Number(sanitized.price);
-    sanitized.mrp = sanitized.mrp === "" ? "" : Number(sanitized.mrp);
-    sanitized.stock = sanitized.stock === "" ? 0 : Number(sanitized.stock);
-    if (!sanitized.name) {
-      alert("Product name is required");
-      return;
-    }
-    setProducts((prev) => {
-      const idx = prev.findIndex((p) => p.id === sanitized.id);
-      if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx] = sanitized;
-        return copy;
-      }
-      return [sanitized, ...prev];
-    });
-    setShowForm(false);
-    setForm(emptyForm);
-  }
-
-  function deleteProduct(id) {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-  }
-
-  function exportCSV() {
-    const headers = [
-      "id",
-      "name",
-      "sku",
-      "category",
-      "price",
-      "mrp",
-      "stock",
-      "size",
-      "color",
-      "material",
-      "description",
-      "images_count"
-    ];
-    const rows = products.map((p) => [
-      p.id,
-      csvSafe(p.name),
-      csvSafe(p.sku),
-      csvSafe(p.category),
-      p.price,
-      p.mrp,
-      p.stock,
-      csvSafe(p.size),
-      csvSafe(p.color),
-      csvSafe(p.material),
-      csvSafe(p.description),
-      p.images ? p.images.length : 0
-    ]);
-    const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `mini_erp_products_${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function csvSafe(s) {
-    if (s == null) return "";
-    return '"' + String(s).replace(/"/g, '""') + '"';
-  }
-
-  const filtered = products.filter((p) => {
-    if (!query) return true;
-    const q = query.toLowerCase();
-    return (
-      String(p.name).toLowerCase().includes(q) ||
-      String(p.sku || "").toLowerCase().includes(q) ||
-      String(p.category || "").toLowerCase().includes(q) ||
-      String(p.color || "").toLowerCase().includes(q)
-    );
-  });
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Mini-ERP — Clothing Store</h1>
-            <p className="text-sm text-gray-600">Manage product details, images, stock — simple and local</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <input
-              placeholder="Search by name / SKU / category"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="border px-3 py-2 rounded-md w-80"
-            />
-            <div>
-              {isAdmin ? (
-                <div className="flex gap-2 items-center">
-                  <button onClick={openAddForm} className="px-3 py-2 bg-blue-600 text-white rounded-md">Add Product</button>
-                  <button onClick={exportCSV} className="px-3 py-2 border rounded-md">Export CSV</button>
-                  <button onClick={handleLogout} className="px-3 py-2 border rounded-md">Logout</button>
-                </div>
-              ) : (
-                <form onSubmit={handleLogin} className="flex gap-2 items-center">
-                  <input
-                    type="password"
-                    placeholder="Admin password"
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    className="border px-3 py-2 rounded-md"
-                  />
-                  <button className="px-3 py-2 bg-green-600 text-white rounded-md">Admin Sign in</button>
-                </form>
-              )}
-            </div>
-          </div>
-        </header>
-
-        <main>
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2">
-              <div className="space-y-4">
-                {filtered.length === 0 && (
-                  <div className="p-6 bg-white rounded-md shadow">No products found.</div>
-                )}
-                {filtered.map((p) => (
-                  <div key={p.id} className="bg-white rounded-md shadow p-4 flex gap-4">
-                    <div className="w-28 h-28 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
-                      {p.images && p.images[0] ? (
-                        <img src={p.images[0]} alt={p.name} className="object-cover w-full h-full" />
-                      ) : (
-                        <div className="text-xs text-gray-400">No image</div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold">{p.name}</h3>
-                          <div className="text-sm text-gray-500">SKU: {p.sku || "—"} • {p.category || "—"}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold">{p.price ? `₹${p.price}` : "—"}</div>
-                          <div className="text-sm text-gray-500">Stock: {p.stock ?? 0}</div>
-                        </div>
-                      </div>
-                      <p className="mt-2 text-sm text-gray-600">{p.description}</p>
-
-                      <div className="mt-3 flex gap-2">
-                        <button onClick={() => setSelected(p)} className="px-2 py-1 border rounded">Quick view</button>
-                        {isAdmin ? (
-                          <>
-                            <button onClick={() => openEditForm(p)} className="px-2 py-1 bg-yellow-400 rounded">Edit</button>
-                            <button onClick={() => deleteProduct(p.id)} className="px-2 py-1 bg-red-500 text-white rounded">Delete</button>
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <aside className="bg-white p-4 rounded-md shadow">
-              <h2 className="font-semibold mb-2">Inventory summary</h2>
-              <div className="text-sm text-gray-700">Total products: {products.length}</div>
-              <div className="text-sm text-gray-700">Total images stored: {products.reduce((s, p) => s + (p.images ? p.images.length : 0), 0)}</div>
-
-              <div className="mt-4">
-                <h3 className="font-medium">Quick filters</h3>
-                <div className="mt-2 flex flex-col gap-2">
-                  <button onClick={() => setQuery('')} className="text-sm px-2 py-1 border rounded">Clear search</button>
-                  <button onClick={() => setQuery('shirt')} className="text-sm px-2 py-1 border rounded">Filter: shirt</button>
-                  <button onClick={() => setQuery('kurta')} className="text-sm px-2 py-1 border rounded">Filter: kurta</button>
-                </div>
-              </div>
-
-              <div className="mt-6 text-xs text-gray-500">
-                Tip: Admin can add / edit / delete. Others can only view and quick-view products.
-              </div>
-            </aside>
-          </section>
-
-          {/* product form modal / panel */}
-          {showForm && (
-            <div className="fixed inset-0 bg-black/40 flex items-start justify-center p-6 z-50">
-              <div className="bg-white rounded-md w-full max-w-2xl p-4 shadow">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">{selected ? 'Edit product' : 'Add product'}</h3>
-                  <div className="flex gap-2">
-                    <button onClick={() => { setShowForm(false); setForm(emptyForm); }} className="px-3 py-1 border rounded">Cancel</button>
-                  </div>
-                </div>
-                <form onSubmit={saveProduct} className="mt-4 space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <input value={form.name} onChange={(e)=>setForm(f=>({...f,name:e.target.value}))} placeholder="Product name*" className="border p-2 rounded" />
-                    <input value={form.sku} onChange={(e)=>setForm(f=>({...f,sku:e.target.value}))} placeholder="SKU" className="border p-2 rounded" />
-                    <input value={form.category} onChange={(e)=>setForm(f=>({...f,category:e.target.value}))} placeholder="Category" className="border p-2 rounded" />
-                    <input value={form.price} onChange={(e)=>setForm(f=>({...f,price:e.target.value}))} placeholder="Sale price" className="border p-2 rounded" />
-                    <input value={form.mrp} onChange={(e)=>setForm(f=>({...f,mrp:e.target.value}))} placeholder="MRP" className="border p-2 rounded" />
-                    <input value={form.stock} onChange={(e)=>setForm(f=>({...f,stock:e.target.value}))} placeholder="Stock" className="border p-2 rounded" />
-                    <input value={form.size} onChange={(e)=>setForm(f=>({...f,size:e.target.value}))} placeholder="Size (comma separated)" className="border p-2 rounded col-span-1" />
-                    <input value={form.color} onChange={(e)=>setForm(f=>({...f,color:e.target.value}))} placeholder="Color" className="border p-2 rounded col-span-1" />
-                    <input value={form.material} onChange={(e)=>setForm(f=>({...f,material:e.target.value}))} placeholder="Material" className="border p-2 rounded" />
-                  </div>
-
-                  <textarea value={form.description} onChange={(e)=>setForm(f=>({...f,description:e.target.value}))} placeholder="Description" className="border p-2 rounded w-full h-24" />
-
-                  <div>
-                    <label className="block text-sm mb-2">Images (you can upload multiple)</label>
-                    <input ref={fileRef} type="file" accept="image/*" multiple onChange={onFileChange} className="" />
-                    <div className="mt-2 flex gap-2 flex-wrap">
-                      {(form.images || []).map((src, idx) => (
-                        <div key={idx} className="w-20 h-20 rounded overflow-hidden relative border">
-                          <img src={src} alt={`img-${idx}`} className="w-full h-full object-cover" />
-                          <button type="button" onClick={()=>removeImage(idx)} className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1 rounded-sm">x</button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 justify-end">
-                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Save product</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* quick view drawer */}
-          {selected && (
-            <div className="fixed inset-0 bg-black/30 flex items-end z-40">
-              <div className="bg-white w-full max-h-[80%] overflow-auto rounded-t-lg p-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">{selected.name}</h3>
-                  <button onClick={() => setSelected(null)} className="px-3 py-1 border rounded">Close</button>
-                </div>
-                <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-1">
-                    {selected.images && selected.images.length ? (
-                      <img src={selected.images[0]} alt={selected.name} className="w-full h-64 object-cover rounded" />
-                    ) : (
-                      <div className="w-full h-64 bg-gray-100 flex items-center justify-center">No image</div>
-                    )}
-                  </div>
-                  <div className="md:col-span-2">
-                    <div className="text-sm text-gray-700">SKU: {selected.sku}</div>
-                    <div className="text-sm text-gray-700">Category: {selected.category}</div>
-                    <div className="text-xl font-bold mt-2">{selected.price ? `₹${selected.price}` : '—'}</div>
-                    <div className="text-sm text-gray-600 mt-2">{selected.description}</div>
-                    <div className="mt-4 text-sm text-gray-600">Size: {selected.size}</div>
-                    <div className="mt-1 text-sm text-gray-600">Color: {selected.color}</div>
-                    <div className="mt-1 text-sm text-gray-600">Material: {selected.material}</div>
-                    <div className="mt-3 text-sm text-gray-500">Images: {selected.images ? selected.images.length : 0}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-        </main>
+  <div class="container my-4">
+    <!-- Dashboard -->
+    <h2 class="mb-3">Dashboard</h2>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="card text-center p-3 shadow">
+          <h4>Total Products</h4>
+          <p class="fs-2">120</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center p-3 shadow">
+          <h4>Total Stock</h4>
+          <p class="fs-2">450</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center p-3 shadow">
+          <h4>Low Stock Alerts</h4>
+          <p class="fs-2 text-danger">8</p>
+        </div>
       </div>
     </div>
-  );
-}
+
+    <!-- Product List -->
+    <h2 class="mt-5 mb-3">Product List</h2>
+    <table class="table table-striped table-bordered shadow">
+      <thead class="table-dark">
+        <tr>
+          <th>Image</th>
+          <th>Name</th>
+          <th>SKU</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Size</th>
+          <th>Color</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><img src="shirt.jpg" width="50"></td>
+          <td>Casual Shirt</td>
+          <td>SKU123</td>
+          <td>Men</td>
+          <td>₹799</td>
+          <td>25</td>
+          <td>M</td>
+          <td>Blue</td>
+        </tr>
+        <tr>
+          <td><img src="kurti.jpg" width="50"></td>
+          <td>Designer Kurti</td>
+          <td>SKU456</td>
+          <td>Women</td>
+          <td>₹1199</td>
+          <td>15</td>
+          <td>L</td>
+          <td>Red</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Add Product Form -->
+    <h2 class="mt-5 mb-3">Add Product (Admin)</h2>
+    <form class="card p-4 shadow">
+      <div class="row mb-3">
+        <div class="col"><input type="text" class="form-control" placeholder="Product Name"></div>
+        <div class="col"><input type="text" class="form-control" placeholder="SKU"></div>
+      </div>
+      <div class="row mb-3">
+        <div class="col"><input type="text" class="form-control" placeholder="Category"></div>
+        <div class="col"><input type="number" class="form-control" placeholder="Price"></div>
+      </div>
+      <div class="row mb-3">
+        <div class="col"><input type="number" class="form-control" placeholder="Stock"></div>
+        <div class="col"><input type="text" class="form-control" placeholder="Size"></div>
+        <div class="col"><input type="text" class="form-control" placeholder="Color"></div>
+      </div>
+      <div class="mb-3">
+        <input type="file" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-primary">Save Product</button>
+    </form>
+  </div>
+
+</body>
+</html>
